@@ -1,14 +1,18 @@
 var gulp          = require("gulp"),
+
     del           = require("del"),
+    rename        = require("gulp-rename"),
+
     Notification  = require("node-notifier"),
     util          = require("gulp-util"),
+
     browserify    = require("browserify"),
     watchify      = require("watchify"),
     source        = require("vinyl-source-stream"),
-    buffer        = require("vinyl-buffer"),
+
     reactify      = require("reactify"),
     uglify        = require("gulp-uglify"),
-    rename        = require("gulp-rename"),
+
     browserSync   = require("browser-sync"),
 
     less          = require("gulp-less"),
@@ -56,8 +60,11 @@ gulp.task("browserSync", function() {
 /////////////////////// LESS -> CSS
 gulp.task("less", function () {
   var link = gulp.src("./" + config.lessMainFolder + "/" + config.lessEntry)
+              .on("error", standardHandler)
               .pipe(less({ paths: [ config.lessMainFolder ] }))
+              .on("error", standardHandler)
               .pipe(rename(config.cssFinalName))
+              .on("error", standardHandler)
               .pipe(gulp.dest("./" + config.cssDestFolder));
 
   if (process.env.NODE_ENV === "development") {
@@ -78,21 +85,26 @@ gulp.task("js", function () {
 
   function bundle() {
     link.bundle()
-    .pipe(source(config.jsEntry))
-    .pipe(rename(config.jsFinalName))
-    .pipe(gulp.dest(config.jsDestFolder))
-    .pipe(reload({ stream: true }));
+      .on("error", browserifyHandler)
+      .pipe(source(config.jsEntry))
+      .on("error", browserifyHandler)
+      .pipe(rename(config.jsFinalName))
+      .on("error", browserifyHandler)
+      .pipe(gulp.dest(config.jsDestFolder))
+      .on("error", browserifyHandler)
+      .pipe(reload({ stream: true }));
   }
 
   link = browserify({
     cache: {},
     packageCache: {},
     fullPaths: true
-  });
+  }).on("error", browserifyHandler);
 
   if (process.env.NODE_ENV === "development") {
     link = watchify(link);
     link.on("update", function () {
+      console.log("update");
       bundle();
     });
   }
@@ -103,12 +115,12 @@ gulp.task("js", function () {
 });
 ///////////////////////////////////////////////////////////////////////////////
 
-gulp.task("dev", function () {
+gulp.task("dev", ["clean"], function () {
   process.env.NODE_ENV = "development";
   gulp.start([ "watch-less", "js", "browserSync" ]);
 });
 
-gulp.task("prod", function () {
+gulp.task("prod", ["clean"], function () {
   process.env.NODE_ENV = "production";
   gulp.start([ "less", "js" ]);
 });
