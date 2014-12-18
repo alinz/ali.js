@@ -1,3 +1,5 @@
+"use strict";
+
 var requestAnimationFrame = window.requestAnimationFrame       ||
                             window.webkitRequestAnimationFrame ||
                             window.mozRequestAnimationFrame    ||

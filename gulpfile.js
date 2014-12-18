@@ -1,27 +1,38 @@
 var gulp          = require("gulp"),
-    del           = require('del'),
-    Notification  = require('node-notifier'),
-    util          = require('gulp-util'),
-    browserify    = require('browserify'),
-    watchify      = require('watchify'),
-    source        = require('vinyl-source-stream'),
-    buffer        = require('vinyl-buffer'),
-    reactify      = require('reactify'),
-    uglify        = require('gulp-uglify'),
-    browserSync   = require('browser-sync'),
+    del           = require("del"),
+    Notification  = require("node-notifier"),
+    util          = require("gulp-util"),
+    browserify    = require("browserify"),
+    watchify      = require("watchify"),
+    source        = require("vinyl-source-stream"),
+    buffer        = require("vinyl-buffer"),
+    reactify      = require("reactify"),
+    uglify        = require("gulp-uglify"),
+    rename        = require("gulp-rename"),
+    browserSync   = require("browser-sync"),
+
+    less          = require("gulp-less"),
+
     reload        = browserSync.reload;
 
-var path = {
-    jsx:    "./src/main.jsx",
-    bundle: "ali.js",
-    distjs: "dist/js"
+
+var config = {
+    lessMainFolder: "src/less",
+    lessEntry:      "main.less",
+    cssDestFolder:  "dist/css",
+    cssFinalName:   "main.css",
+
+    jsMainFolder:   "src/js",
+    jsEntry:        "main.jsx",
+    jsDestFolder:   "dist/js",
+    jsFinalName:    "main.js",
 };
 
 function standardHandler(err){
   // Notification
-  Notification.notify({ message: 'Error: ' + err.message });
+  Notification.notify({ message: "Error: " + err.message });
   // Log to console
-  util.log(util.colors.red('Error'), err.message);
+  util.log(util.colors.red("Error"), err.message);
 }
 
 function browserifyHandler(err){
@@ -30,61 +41,78 @@ function browserifyHandler(err){
 }
 
 //delete dist folder by calling: gulp clean
-gulp.task('clean', function(cb) {
-  del(['dist'], cb);
+gulp.task("clean", function(cb) {
+  del(["dist"], cb);
 });
 
-gulp.task('browserSync', function() {
+gulp.task("browserSync", function() {
   browserSync({
     server: {
-      baseDir: './'
+      baseDir: "./"
     }
   });
 });
 
-gulp.task('watchify', function() {
-  var bundler = watchify(browserify(path.jsx, watchify.args));
+/////////////////////// LESS -> CSS
+gulp.task("less", function () {
+  var link = gulp.src("./" + config.lessMainFolder + "/" + config.lessEntry)
+              .pipe(less({ paths: [ config.lessMainFolder ] }))
+              .pipe(rename(config.cssFinalName))
+              .pipe(gulp.dest("./" + config.cssDestFolder));
 
-  bundler.on("error", function (err) { console.log(err); });
-
-  function rebundle() {
-    return bundler
-            .bundle()
-            .on('error', standardHandler)
-            .pipe(source(path.bundle))
-            .on('error', standardHandler)
-            .pipe(gulp.dest(path.distjs))
-            .on('error', standardHandler)
-            .pipe(reload({ stream: true }))
-            .on('error', standardHandler);
+  if (process.env.NODE_ENV === "development") {
+    link = link.pipe(reload({ stream: true }));
   }
 
-  bundler.transform(reactify)
-    .on("update", rebundle)
-    .on('error', standardHandler);
-
-  return rebundle();
+  return link;
 });
 
-gulp.task('browserify', function() {
-  browserify(path.jsx)
-    .transform(reactify)
-    .bundle()
-    .pipe(source(path.bundle))
-    .pipe(buffer())
-    .pipe(uglify())
-    .pipe(gulp.dest(path.distJs));
+gulp.task("watch-less", function () {
+  gulp.watch("./" + config.lessMainFolder + "/**/*.less", ["less"]);
+});
+///////////////////////////////////////////////////////////////////////////////
+
+/////////////////////// jsx -> js
+gulp.task("js", function () {
+  var link;
+
+  function bundle() {
+    link.bundle()
+    .pipe(source(config.jsEntry))
+    .pipe(rename(config.jsFinalName))
+    .pipe(gulp.dest(config.jsDestFolder))
+    .pipe(reload({ stream: true }));
+  }
+
+  link = browserify({
+    cache: {},
+    packageCache: {},
+    fullPaths: true
+  });
+
+  if (process.env.NODE_ENV === "development") {
+    link = watchify(link);
+    link.on("update", function () {
+      bundle();
+    });
+  }
+
+  link.add("./" + config.jsMainFolder + "/" + config.jsEntry);
+  link.transform(reactify);
+  bundle();
+});
+///////////////////////////////////////////////////////////////////////////////
+
+gulp.task("dev", function () {
+  process.env.NODE_ENV = "development";
+  gulp.start([ "watch-less", "js", "browserSync" ]);
 });
 
-gulp.task('watch', ['clean'], function() {
-  gulp.start(['browserSync', 'watchify']);
+gulp.task("prod", function () {
+  process.env.NODE_ENV = "production";
+  gulp.start([ "less", "js" ]);
 });
 
-gulp.task('build', ['clean'], function() {
-  process.env.NODE_ENV = 'production';
-  gulp.start(['browserify']);
-});
-
-gulp.task('default', function() {
-  console.log('Run "gulp watch or gulp build"');
+gulp.task("default", function() {
+  console.log("Run 'gulp dev or gulp prod'");
 });
