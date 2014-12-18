@@ -74,7 +74,7 @@ gulp.task("less", function () {
   return link;
 });
 
-gulp.task("watch-less", function () {
+gulp.task("watch-less", ["less"], function () {
   gulp.watch("./" + config.lessMainFolder + "/**/*.less", ["less"]);
 });
 ///////////////////////////////////////////////////////////////////////////////
