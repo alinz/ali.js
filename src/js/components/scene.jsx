@@ -9,6 +9,7 @@ var React = require("react"),
     AnimationFrameMixin = require("./../mixins/animation-frame.js"),
     TouchUtilMixin = require("./../mixins/touch-util.js"),
     ZoomMixin = require("./../mixins/zoom.js"),
+    EventEmitterMixin = require("./../mixins/event-emitter.js"),
     DraggableMixin = require("./../mixins/draggable.js"),
 
     Rect = require("./rect.jsx"),
@@ -22,7 +23,9 @@ var Scene = React.createClass({
   mixins: [
     AnimationFrameMixin,
     TouchUtilMixin,
-    ZoomMixin
+    EventEmitterMixin,
+    ZoomMixin,
+    DraggableMixin
   ],
   getDefaultProps: function () {
     return {
@@ -39,9 +42,11 @@ var Scene = React.createClass({
   },
   componentDidMount: function () {
     this.startZoom();
+    this.startDragging();
   },
   componentWillUnmount: function () {
     this.stopZoom();
+    this.stopDragging();
   },
   update: function () {
     this.setStateAnimationFrame({

@@ -6,13 +6,12 @@ var Vector2D = require("./../util/math/vector2d.js"),
     draggingStart = new Vector2D(),
     draggingMove = new Vector2D(),
     clone = new Vector2D(),
-    position;
+    metaData;
 
 function draggableOnMouseDown(event) {
   event.stopPropagation();
 
-  position = this.getMouseTouchPosition(event);
-  draggingStart.copyFrom(position);
+  draggingStart.copyFrom(this.getMouseTouchPosition(event));
 
   isDragging = true;
 
@@ -23,20 +22,22 @@ function draggableOnMouseDown(event) {
 function draggableOnMouseMove(event) {
   event.stopPropagation();
 
-  if (isDragging) return;
+  if (!isDragging) return;
+
+  metaData = this.props;
 
   draggingMove.copyFrom(this.getMouseTouchPosition(event));
   clone.copyFrom(draggingMove);
   draggingMove.add(draggingStart.reverse())
   draggingStart.copyFrom(clone);
 
-  if (this.props.appMetaData) {
-    draggingMove.div(this.props.appMetaData.scale);
+  if (metaData.scale) {
+    //draggingMove.div(metaData.scale);
   }
 
-  this.props.metaData.position.add(draggingMove);
+  metaData.position.add(draggingMove);
 
-  this.props.metaData.requestRender = true;
+  this.update();
 }
 
 function draggableOnMouseUp(event) {
@@ -49,7 +50,7 @@ function draggableOnMouseUp(event) {
 }
 
 module.exports = {
-  startDraggable: function () {
+  startDragging: function () {
     if (!this.getMouseTouchPosition) {
       throw "TouchUtilMixin is missing.";
     }
@@ -63,7 +64,7 @@ module.exports = {
       draggableStarted = true;
     }
   },
-  stopDraggable: function () {
+  stopDragging: function () {
     if (draggableStarted) {
       this.off("mousedown", draggableOnMouseDown);
       draggableStarted = false;
