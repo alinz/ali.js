@@ -5,7 +5,9 @@ var React = require("react"),
     //mixins
     AnimationFrameMixin = require("./../mixins/animation-frame.js"),
     TouchUtilMixin = require("./../mixins/touch-util.js"),
-    EventEmitter = require("./../mixins/event-emitter.js");
+    EventEmitter = require("./../mixins/event-emitter.js"),
+
+    Rect = require("./rect.jsx");
 
 var Scene = React.createClass({
   mixins: [
@@ -13,9 +15,25 @@ var Scene = React.createClass({
     TouchUtilMixin,
     EventEmitter
   ],
+  getInitialState: function () {
+    return {
+      renderTrigger: 0
+    };
+  },
+  componentWillMount: function () {
+  },
+  componentDidMount: function () {
+  },
+  update: function () {
+    this.setStateAnimationFrame({
+      renderTrigger: this.state.renderTrigger++
+    });
+  },
   render: function () {
     return (
-      <p>Hello World this is scene!</p>
+      <svg>
+        <Rect width={100} height={100}/>
+      </svg>
     );
   }
 });

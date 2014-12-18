@@ -17,7 +17,7 @@ var Rect = React.createClass({
   },
   render: function () {
     return (
-      <rect className="rect-border"
+      <rect className="rect"
             width={this.props.width}
             height={this.props.height}/>
     );

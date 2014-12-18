@@ -1,9 +1,9 @@
 "use strict";
 
 var React = require("react"),
-    Scene = require("./components/scene.jsx");
+    Scene = React.createFactory(require("./components/scene.jsx"));
 
-React.renderComponent(
+React.render(
   Scene(),
   document.getElementById("content")
 );
