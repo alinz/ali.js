@@ -1,0 +1,70 @@
+function Vector2D(x, y) {
+  this.x = x || 0;
+  this.y = y || 0;
+};
+
+Vector2D.prototype = {
+  constructor: Vector2D,
+  assign: function (x, y) {
+    this.x = x;
+    this.y = y;
+
+    return this;
+  },
+  copyTo: function (vect) {
+    vect.x = this.x;
+    vect.y = this.y;
+
+    return this;
+  },
+  copyFrom: function (vect) {
+    this.x = vect.x;
+    this.y = vect.y;
+
+    return this;
+  },
+  add: function (vect) {
+    this.x += vect.x;
+    this.y += vect.y;
+
+    return this;
+  },
+  normalise : function () {
+    var m = this.magnitude();
+
+    this.x = this.x / m;
+    this.y = this.y / m;
+
+    return this;
+  },
+  reverse : function () {
+    this.x = -this.x;
+    this.y = -this.y;
+
+    return this;
+  },
+  div: function (value) {
+    this.x /= value;
+    this.y /= value;
+  },
+  magnitude : function () {
+    return Math.sqrt((this.x * this.x) + (this.y * this.y));
+  },
+  dot : function (v) {
+    return (this.x * v.x) + (this.y * v.y) ;
+  },
+  angleDegree : function () {
+    return this.angleRadian() * Vector2D.TO_DEGREES;
+  },
+  angleRadian : function () {
+    return Math.atan2(this.y, this.x);
+  },
+  toString: function () {
+    return "[" + this.x + ", " + this.y + "]";
+  },
+  clone: function () {
+    return new Vector2D(this.x, this.y);
+  }
+};
+
+module.exports = Vector2D;

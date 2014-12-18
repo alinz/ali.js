@@ -1,5 +1,5 @@
 var React = require("react"),
-    Scene = require("./components/scene.component.jsx");
+    Scene = require("./components/scene.jsx");
 
 React.renderComponent(
   Scene(),
