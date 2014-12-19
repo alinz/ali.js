@@ -10,9 +10,37 @@
 "use strict";
 
 var React = require("react"),
-    Scene = React.createFactory(require("./components/scene.jsx"));
+    Scene = require("./components/scene.jsx"),
+
+    data = {
+      links: [
+        {
+          source: "node1",
+          target: "node2",
+          data: []
+        }
+      ],
+      nodes: [
+        {
+          id: "node1",
+          data: [],
+          position: {
+            x: 10,
+            y: 20
+          }
+        },
+        {
+          id: "node2",
+          data: [],
+          position: {
+            x: 40,
+            y: 20
+          }
+        }
+      ]
+    };
 
 React.render(
-  Scene(),
+  <Scene source={data}/>,
   document.getElementById("content")
 );

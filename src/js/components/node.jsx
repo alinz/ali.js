@@ -23,8 +23,7 @@ var React           = require("react"),
     TouchUtilMixin  = require("./../mixins/touch-util.js"),
 
     //globals
-    props,
-    size            = new Vector2D();
+    props;
 
 var Node = React.createClass({
   mixins: [
@@ -38,23 +37,41 @@ var Node = React.createClass({
     update: React.PropTypes.func.isRequired
   },
   calculateSize: function () {
-    size.x = 100;
-    size.y = 100;
+    props = this.props;
+
+    if (!(this.props.size instanceof Vector2D)) {
+      props.size = new Vector2D(100, 100);
+      props.centerPosition = new Vector2D();
+    }
+
+    props.centerPosition.x = props.position.x + props.size.x / 2;
+    props.centerPosition.y = props.position.y + props.size.y / 2;
+  },
+  getInitialState: function () {
+      console.log("first");
+      return {};
   },
   update: function () {
     this.props.update();
   },
-  render: function () {
-    props = this.props;
-
+  componentWillMount: function () {
     this.calculateSize();
+  },
+  shouldComponentUpdate: function () {
+    this.calculateSize();
+    return true;
+  },
+  render: function () {
+    this.calculateSize();
+
+    props = this.props;
 
     return (
       <g onMouseDown={this.startDragging}>
         <Rect x={props.position.x}
               y={props.position.y}
-              width={size.x}
-              height={size.y}/>
+              width={props.size.x}
+              height={props.size.y}/>
       </g>
     );
   }
