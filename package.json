@@ -1,4 +1,8 @@
 {
+  "name": "alijs",
+  "version": "0.0.1",
+  "description": "a node base tool",
+
   "devDependencies": {
     "gulp": "3.8.10",
     "del": "1.1.0",
@@ -13,6 +17,7 @@
     "browser-sync": "1.8.0",
     "gulp-less": "2.0.1"
   },
+
   "dependencies": {
     "react": "0.12.1"
   }
