@@ -16,6 +16,9 @@ function Vector2D(x, y) {
 
 Vector2D.prototype = {
   constructor: Vector2D,
+  equal: function (vect) {
+      return this == vect || ( this.x === vect.x && this.y === vect.y );
+  },
   assign: function (x, y) {
     this.x = x;
     this.y = y;
