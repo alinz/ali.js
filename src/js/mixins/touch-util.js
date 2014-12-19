@@ -1,7 +1,9 @@
 "use strict";
 
-var Vector2D = require("./../util/math/vector2d.js"),
-    value = new Vector2D(),
+var Vector2D  = require("./../util/math/vector2d.js"),
+
+    //gloabls
+    value     = new Vector2D(),
     x, y;
 
 module.exports = {

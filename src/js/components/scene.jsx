@@ -1,21 +1,22 @@
 "use strict";
 
-var React = require("react"),
+var React               = require("react"),
 
     //utils
-    Vector2D = require("./../util/math/vector2d.js"),
+    Vector2D            = require("./../util/math/vector2d.js"),
 
     //mixins
     AnimationFrameMixin = require("./../mixins/animation-frame.js"),
-    TouchUtilMixin = require("./../mixins/touch-util.js"),
-    ZoomMixin = require("./../mixins/zoom.js"),
-    EventEmitterMixin = require("./../mixins/event-emitter.js"),
-    DraggableMixin = require("./../mixins/draggable.js"),
+    TouchUtilMixin      = require("./../mixins/touch-util.js"),
+    ZoomMixin           = require("./../mixins/zoom.js"),
+    EventEmitterMixin   = require("./../mixins/event-emitter.js"),
+    DraggableMixin      = require("./../mixins/draggable.js"),
 
-    Rect = require("./rect.jsx"),
+    //components
+    Node                = require("./node.jsx"),
 
     //global variables
-    transform = "";
+    transform           = "";
 
 React.initializeTouchEvents(true);
 
@@ -39,14 +40,16 @@ var Scene = React.createClass({
     };
   },
   componentWillMount: function () {
+    this.props.nodes = [
+      { position: new Vector2D(), label: "node1" },
+      { position: new Vector2D(), label: "node2" }
+    ];
   },
   componentDidMount: function () {
     this.startZoom();
-    this.startDragging();
   },
   componentWillUnmount: function () {
     this.stopZoom();
-    this.stopDragging();
   },
   update: function () {
     this.setStateAnimationFrame({
@@ -55,10 +58,21 @@ var Scene = React.createClass({
   },
   render: function () {
     transform = "matrix(" + this.props.scale + ",0,0," + this.props.scale + "," + this.props.position.x + "," + this.props.position.y + ")";
+
+    var nodes = this.props.nodes.map(function (node, index) {
+      return (
+        <Node key={index}
+              scale={this.props.scale}
+              position={node.position}
+              label={node.label}
+              update={this.update}/>
+      );
+    }, this);
+
     return (
-      <svg>
+      <svg onMouseDown={this.startDragging}>
         <g transform={transform}>
-          <Rect width={100} height={100}/>
+          {nodes}
         </g>
       </svg>
     );

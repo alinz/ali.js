@@ -1,73 +1,53 @@
 "use strict";
 
-var Vector2D = require("./../util/math/vector2d.js"),
-    draggableStarted = false,
-    isDragging = false,
-    draggingStart = new Vector2D(),
-    draggingMove = new Vector2D(),
-    clone = new Vector2D(),
+var Vector2D          = require("./../util/math/vector2d.js"),
+    draggableStarted  = false,
+    isDragging        = false,
+    draggingStart     = new Vector2D(),
+    draggingMove      = new Vector2D(),
+    clone             = new Vector2D(),
     metaData;
 
-function draggableOnMouseDown(event) {
-  event.stopPropagation();
-
-  draggingStart.copyFrom(this.getMouseTouchPosition(event));
-
-  isDragging = true;
-
-  window.addEventListener("mouseup", draggableOnMouseUp.bind(this));
-  window.addEventListener("mousemove", draggableOnMouseMove.bind(this));
-}
-
-function draggableOnMouseMove(event) {
-  event.stopPropagation();
-
-  if (!isDragging) return;
-
-  metaData = this.props;
-
-  draggingMove.copyFrom(this.getMouseTouchPosition(event));
-  clone.copyFrom(draggingMove);
-  draggingMove.add(draggingStart.reverse())
-  draggingStart.copyFrom(clone);
-
-  if (metaData.scale) {
-    //draggingMove.div(metaData.scale);
-  }
-
-  metaData.position.add(draggingMove);
-
-  this.update();
-}
-
-function draggableOnMouseUp(event) {
-  event.stopPropagation();
-
-  isDragging = false;
-
-  window.removeEventListener("mouseup", draggableOnMouseUp);
-  window.removeEventListener("mousemove", draggableOnMouseMove);
-}
-
 module.exports = {
-  startDragging: function () {
-    if (!this.getMouseTouchPosition) {
-      throw "TouchUtilMixin is missing.";
-    }
+  startDragging: function (event) {
+    //event.stopPropagation();
 
-    if (!this.on) {
-      throw "EventEmitterMixin is missing.";
-    }
+    draggingStart.copyFrom(this.getMouseTouchPosition(event));
 
-    if (!draggableStarted) {
-      this.on("mousedown", draggableOnMouseDown.bind(this));
-      draggableStarted = true;
-    }
+    isDragging = true;
+
+    window.addEventListener("mouseup", this.__stopDragging);
+    window.addEventListener("mousemove", this.__draggableOnMouseMove);
   },
-  stopDragging: function () {
-    if (draggableStarted) {
-      this.off("mousedown", draggableOnMouseDown);
-      draggableStarted = false;
+  __draggableOnMouseMove: function (event) {
+    event.stopPropagation();
+
+    if (!isDragging) return;
+
+    metaData = this.props;
+
+    draggingMove.copyFrom(this.getMouseTouchPosition(event));
+    clone.copyFrom(draggingMove);
+    draggingMove.add(draggingStart.reverse())
+    draggingStart.copyFrom(clone);
+
+    //if this element doesn't have update properties it means that
+    //it's not a scene object. What we need to do is div move position with
+    //provided scale.
+    if (metaData.update) {
+      draggingMove.div(metaData.scale);
     }
+
+    metaData.position.add(draggingMove);
+
+    this.update();
+  },
+  __stopDragging: function (event) {
+    event.stopPropagation();
+
+    isDragging = false;
+
+    window.removeEventListener("mouseup", this.__stopDragging);
+    window.removeEventListener("mousemove", this.__draggableOnMouseMove);
   }
 };
