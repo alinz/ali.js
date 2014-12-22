@@ -20,7 +20,7 @@ var zoomStarted   = false,
 function onMouseWheel(event) {
   event.preventDefault();
 
-  metaData = this.props;
+  metaData = this.state;
 
   zoomFactor = event.deltaY;
   x = event.pageX;

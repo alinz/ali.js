@@ -15,12 +15,11 @@ var Vector2D          = require("./../util/math/vector2d.js"),
     draggingStart     = new Vector2D(),
     draggingMove      = new Vector2D(),
     clone             = new Vector2D(),
-    metaData;
+    globalMeta,
+    internalMeta;
 
 module.exports = {
   startDragging: function (event) {
-    //event.stopPropagation();
-
     draggingStart.copyFrom(this.getMouseTouchPosition(event));
 
     isDragging = true;
@@ -33,7 +32,17 @@ module.exports = {
 
     if (!isDragging) return;
 
-    metaData = this.props;
+    //these two variables are set in a such a way that if the object is scene
+    //if the object is a scene object, both global and internal will point to
+    //this.state
+    //otherwise, globalMeta points to this.props and internalMeta points to
+    //this.props.objRef
+    if (this.state && this.state.source) {
+      internalMeta = globalMeta = this.state;
+    } else {
+      globalMeta = this.props;
+      internalMeta = this.props.objRef;
+    }
 
     draggingMove.copyFrom(this.getMouseTouchPosition(event));
     clone.copyFrom(draggingMove);
@@ -43,11 +52,11 @@ module.exports = {
     //if this element doesn't have update properties it means that
     //it's not a scene object. What we need to do is div move position with
     //provided scale.
-    if (metaData.update) {
-      draggingMove.div(metaData.scale);
+    if (globalMeta.update) {
+      draggingMove.div(globalMeta.scale);
     }
 
-    metaData.position.add(draggingMove);
+    internalMeta.position.add(draggingMove);
 
     this.update();
   },

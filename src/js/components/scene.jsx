@@ -26,6 +26,7 @@ var React               = require("react"),
     Link                = require("./link.jsx"),
 
     //global variables
+    transformMatrix     = [0, 0, 0, 0, 0, 0],
     transform           = "";
 
 React.initializeTouchEvents(true);
@@ -41,7 +42,6 @@ function processData(source) {
       id: node.id,
       data: node.data,
       position: new Vector2D(node.position.x, node.position.y),
-      size: new Vector2D(),
       links: []
     }
   });
@@ -77,7 +77,6 @@ var Scene = React.createClass({
     ZoomMixin,
     DraggableMixin
   ],
-  //validating { source: ... } object
   propTypes: {
     source: React.PropTypes.shape(
       {
@@ -107,23 +106,19 @@ var Scene = React.createClass({
       }//end of shape of source
     )//end of source
   },
-  getDefaultProps: function () {
-    return {
-      scale: 1.0,
-      position: new Vector2D(0, 0),
-    };
-  },
   getInitialState: function () {
     return {
+      scale: 1.0,
+      position: new Vector2D(),
+      source: null,
       renderTrigger: 0
     };
   },
   componentWillMount: function () {
-    this.props.source = processData(this.props.source);
-    console.log(this.props.source);
+    this.state.source = processData(this.props.source);
   },
   componentWillReceiveProps: function (nextProps) {
-    this.props.source = processData(this.props.source);
+    this.state.source = processData(this.props.source);
   },
   componentDidMount: function () {
     this.startZoom();
@@ -138,39 +133,44 @@ var Scene = React.createClass({
   },
   render: function () {
     var nodeObj,
-        links = [];
+        nodes,
+        links = [],
+        state = this.state;
 
-    transform = "matrix(" + this.props.scale + ",0,0," + this.props.scale + "," + this.props.position.x + "," + this.props.position.y + ")";
+    nodes = Object.keys(state.source.nodes).map(function (nodeId) {
+      nodeObj = state.source.nodes[nodeId];
 
-    var nodes = Object.keys(this.props.source.nodes).map(function (nodeId, index) {
-      nodeObj = this.props.source.nodes[nodeId];
-      return <Node key={index}
-                   scale={this.props.scale}
-                   position={nodeObj.position}
+      return <Node key={nodeObj.id}
+                   scale={state.scale}
+                   objRef={nodeObj}
                    label={"node.label"}
                    update={this.update}/>
     }.bind(this));
 
-    this.props.source.links.forEach(function (link) {
-      var sourceNode = this.props.source.nodes[link.source],
-          targetNode = this.props.source.nodes[link.target];
-
-      console.log("second");
-      if (!sourceNode.centerPosition || !targetNode.centerPosition) {
-        return;
-      }
+    state.source.links.forEach(function (link) {
+      var sourceNode = state.source.nodes[link.source],
+          targetNode = state.source.nodes[link.target];
 
       links.push(
-        <Link id={link.id}
-              source={sourceNode.centerPosition}
-              target={targetNode.centerPosition}/>
+        <Link key={link.id}
+              source={sourceNode}
+              target={targetNode}/>
       );
     }.bind(this));
 
+    transformMatrix[0] = state.scale;
+    transformMatrix[3] = state.scale;
+    transformMatrix[4] = state.position.x;
+    transformMatrix[5] = state.position.y;
+
+    transform = "matrix(" + transformMatrix.join(",") + ")";
+
+    //<g dangerouslySetInnerHTML={{__html: '<use xlink:href="#group-nodes"/>'}}/>
+
     return (
       <svg onMouseDown={this.startDragging}>
-        <g transform={transform}>{links}</g>
         <g transform={transform}>{nodes}</g>
+        <g transform={transform}>{links}</g>
       </svg>
     );
   }

@@ -22,15 +22,16 @@ var React     = require("react"),
 
 var Link = React.createClass({
   propTypes: {
-    source: React.PropTypes.instanceOf(Vector2D).isRequired,
-    target: React.PropTypes.instanceOf(Vector2D).isRequired
+    source: React.PropTypes.any.isRequired,
+    target: React.PropTypes.any.isRequired
   },
   render: function () {
     props = this.props;
 
     return (
       <g>
-        <Line source={props.source} target={props.target}/>
+        <Line source={props.source.centerPosition}
+              target={props.target.centerPosition}/>
       </g>
     );
   }

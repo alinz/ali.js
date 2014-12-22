@@ -23,7 +23,8 @@ var React           = require("react"),
     TouchUtilMixin  = require("./../mixins/touch-util.js"),
 
     //globals
-    props;
+    props,
+    objRef;
 
 var Node = React.createClass({
   mixins: [
@@ -32,24 +33,23 @@ var Node = React.createClass({
   ],
   propTypes: {
     scale: React.PropTypes.number.isRequired,
-    position: React.PropTypes.instanceOf(Vector2D),
     label: React.PropTypes.string.isRequired,
-    update: React.PropTypes.func.isRequired
+    update: React.PropTypes.func.isRequired,
+    objRef: React.PropTypes.any.isRequired
   },
   calculateSize: function () {
-    props = this.props;
+    objRef = this.props.objRef;
 
-    if (!(this.props.size instanceof Vector2D)) {
-      props.size = new Vector2D(100, 100);
-      props.centerPosition = new Vector2D();
+    if (!(objRef.size instanceof Vector2D)) {
+      objRef.size = new Vector2D(100, 100);
     }
 
-    props.centerPosition.x = props.position.x + props.size.x / 2;
-    props.centerPosition.y = props.position.y + props.size.y / 2;
-  },
-  getInitialState: function () {
-      console.log("first");
-      return {};
+    if (!(objRef.centerPosition instanceof Vector2D)) {
+      objRef.centerPosition = new Vector2D();
+    }
+
+    objRef.centerPosition.x = objRef.position.x + objRef.size.x / 2;
+    objRef.centerPosition.y = objRef.position.y + objRef.size.y / 2;
   },
   update: function () {
     this.props.update();
@@ -65,13 +65,14 @@ var Node = React.createClass({
     this.calculateSize();
 
     props = this.props;
+    objRef = props.objRef;
 
     return (
       <g onMouseDown={this.startDragging}>
-        <Rect x={props.position.x}
-              y={props.position.y}
-              width={props.size.x}
-              height={props.size.y}/>
+        <Rect x={objRef.position.x}
+              y={objRef.position.y}
+              width={objRef.size.x}
+              height={objRef.size.y}/>
       </g>
     );
   }

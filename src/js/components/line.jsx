@@ -30,11 +30,23 @@ var Line = React.createClass({
     source: React.PropTypes.instanceOf(Vector2D).isRequired,
     target: React.PropTypes.instanceOf(Vector2D).isRequired
   },
-  shouldComponentUpdate: function (nextProps) {
-    return (
-      !this.props.source.equal(nextProps.source) ||
-      !this.props.target.equal(nextProps.target)
-    );
+  getInitialState: function () {
+      return {
+        source: new Vector2D(),
+        target: new Vector2D()
+      };
+  },
+  shouldComponentUpdate: function (nextProps, nextState) {
+    if (!this.state.source.equal(nextProps.source) ||
+        !this.state.target.equal(nextProps.target)) {
+
+      this.state.source.copyFrom(nextProps.source);
+      this.state.target.copyFrom(nextProps.target);
+
+      return true;
+    }
+
+    return false;
   },
   straight: function () {
     props = this.props;
@@ -43,16 +55,15 @@ var Line = React.createClass({
     lineConfiguration[2] = props.source.y;
 
     lineConfiguration[4] = props.source.x;
-    lineConfiguration[5] = props.source.x;
+    lineConfiguration[5] = props.source.y;
 
     lineConfiguration[6] = props.target.x;
-    lineConfiguration[7] = props.target.x;
+    lineConfiguration[7] = props.target.y;
 
     lineConfiguration[8] = props.target.x;
-    lineConfiguration[9] = props.target.x;
+    lineConfiguration[9] = props.target.y;
   },
   render: function () {
-
     this.straight();
 
     return (
