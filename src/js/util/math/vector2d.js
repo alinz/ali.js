@@ -43,6 +43,12 @@ Vector2D.prototype = {
 
     return this;
   },
+  sub: function (vect) {
+    this.x -= vect.x;
+    this.y -= vect.y;
+
+    return this;
+  },
   normalise : function () {
     var m = this.magnitude();
 
