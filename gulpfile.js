@@ -30,15 +30,18 @@ var gulp          = require("gulp"),
 
 
 var config = {
-    lessMainFolder: "src/less",
-    lessEntry:      "main.less",
-    cssDestFolder:  "dist/css",
-    cssFinalName:   "main.css",
+    lessMainFolder:   "src/less",
+    lessEntry:        "main.less",
+    cssDestFolder:    "dist/css",
+    cssFinalName:     "main.css",
 
-    jsMainFolder:   "src/js",
-    jsEntry:        "main.jsx",
-    jsDestFolder:   "dist/js",
-    jsFinalName:    "main.js",
+    jsMainFolder:     "src/js",
+    jsEntry:          "main.jsx",
+    jsDestFolder:     "dist/js",
+    jsFinalName:      "main.js",
+
+    assetFolder:      "asset/**/*",
+    assetDistFolder:  "dist"
 };
 
 function standardHandler(err){
@@ -65,6 +68,19 @@ gulp.task("browserSync", function() {
     }
   });
 });
+
+/////////////////////// MOVE ASSET
+gulp.task('move',[], function(){
+  // the base option sets the relative root for the set of files,
+  // preserving the folder structure
+  return gulp.src(["./" + config.assetFolder], { base: "./" })
+             .pipe(gulp.dest(config.assetDistFolder));
+});
+
+gulp.task("watch-move", ["move"], function () {
+    gulp.watch("./" + config.assetFolder, ["move"]);
+});
+///////////////////////////////////////////////////////////////////////////////
 
 /////////////////////// LESS -> CSS
 gulp.task("less", function () {
@@ -126,12 +142,12 @@ gulp.task("js", function () {
 
 gulp.task("dev", ["clean"], function () {
   process.env.NODE_ENV = "development";
-  gulp.start([ "watch-less", "js", "browserSync" ]);
+  gulp.start([ "watch-move", "watch-less", "js", "browserSync" ]);
 });
 
 gulp.task("prod", ["clean"], function () {
   process.env.NODE_ENV = "production";
-  gulp.start([ "less", "js" ]);
+  gulp.start([ "less", "js", "move" ]);
 });
 
 gulp.task("default", function() {
