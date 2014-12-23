@@ -18,6 +18,11 @@ var React = require("react"),
           source: "node1",
           target: "node2",
           data: []
+        },
+        {
+          source: "node2",
+          target: "node3",
+          data: []
         }
       ],
       nodes: [
@@ -31,6 +36,14 @@ var React = require("react"),
         },
         {
           id: "node2",
+          data: [],
+          position: {
+            x: 40,
+            y: 20
+          }
+        },
+        {
+          id: "node3",
           data: [],
           position: {
             x: 40,

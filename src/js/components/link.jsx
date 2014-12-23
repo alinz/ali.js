@@ -94,6 +94,21 @@ var Link = React.createClass({
       <g>
         <Line source={fromVector}
               target={toVector}/>
+              
+        <circle cx={fromVector.x}
+                cy={fromVector.y}
+                r={5}
+                className="fill-black"/>
+
+        <circle cx={toVector.x}
+                cy={toVector.y}
+                r={5}
+                className="fill-white boarder-black"/>
+
+        <circle cx={toVector.x}
+                cy={toVector.y}
+                r={3}
+                className="fill-black"/>
       </g>
     );
   }

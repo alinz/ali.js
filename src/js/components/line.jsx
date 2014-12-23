@@ -17,13 +17,17 @@ var React             = require("react"),
     //globals
     lineConfiguration = [
       "M",
-      0, 0, // 1, 2
+      0, 0, // 1, 2 sourceX, sourceY
       "C",
-      0, 0, // 4, 5
-      0, 0, // 6, 7
-      0, 0  // 8, 9
+      0, 0, // 4, 5 c1X, c1Y
+      0, 0, // 6, 7 c2X, c2Y
+      0, 0  // 8, 9 targetX, targetY
     ],
-    props;
+    props,
+
+    //curv variables
+    min = new Vector2D(),
+    max = new Vector2D();
 
 var Line = React.createClass({
   propTypes: {
@@ -48,6 +52,30 @@ var Line = React.createClass({
 
     return false;
   },
+  curv: function () {
+    //this method is not working yet.
+    props = this.props;
+
+    min.x = props.source.x;
+    min.y = props.source.y;
+
+    max.copyFrom(min);
+       //.add(props.size);
+
+    if (props.source.y > min.y &&
+        props.source.y < max.y &&
+        (props.source.x > min.x || props.source.x < max.x)) {
+      lineConfiguration[4] = props.source.x + (props.target.x - min.x) / 2;
+      lineConfiguration[5] = props.source.y;
+      lineConfiguration[6] = lineConfiguration[4];
+      lineConfiguration[7] = props.target.y;
+    } else {
+      lineConfiguration[4] = props.source.x;
+      lineConfiguration[5] = props.source.y + (props.target.y - props.source.y) / 2;
+      lineConfiguration[6] = props.target.x;
+      lineConfiguration[7] = lineConfiguration[5];
+    }
+  },
   straight: function () {
     props = this.props;
 
@@ -65,6 +93,7 @@ var Line = React.createClass({
   },
   render: function () {
     this.straight();
+    //this.curv();
 
     return (
       <g className="line">
