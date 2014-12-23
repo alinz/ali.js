@@ -13,8 +13,6 @@ var Vector2D          = require("./../util/math/vector2d.js"),
     Mousetrap         = require("mousetrap"),
 
     //globals
-    enabled           = false,
-
     draggableStarted  = false,
     isDragging        = false,
     draggingStart     = new Vector2D(),
@@ -23,21 +21,31 @@ var Vector2D          = require("./../util/math/vector2d.js"),
     globalMeta,
     internalMeta;
 
+function defaultCursor() {
+  document.body.className = "";
+}
+
+function openHandCursor() {
+  var body = document.body;
+  if (body.className !== "cursor-open-hand") {
+    body.className = "cursor-open-hand";
+  }
+}
+
+function closeHandCursor() {
+  var body = document.body;
+  if (body.className !== "cursor-closed-hand") {
+    body.className = "cursor-closed-hand";
+  }
+}
+
+
 module.exports = {
   initDragging: function () {
-      Mousetrap.bind("space", function () {
-        enabled = true;
-      }, "keydown");
-
-      Mousetrap.bind("space", function () {
-        enabled = false;
-
-        window.removeEventListener("mouseup", this.__stopDragging);
-        window.removeEventListener("mousemove", this.__draggableOnMouseMove);
-      }.bind(this), "keyup");
+    openHandCursor();
   },
   startDragging: function (event) {
-    if (!enabled) return;
+    closeHandCursor();
 
     draggingStart.copyFrom(this.getMouseTouchPosition(event));
 
@@ -50,6 +58,8 @@ module.exports = {
     event.stopPropagation();
 
     if (!isDragging) return;
+
+    closeHandCursor();
 
     //these two variables are set in a such a way that if the object is scene
     //if the object is a scene object, both global and internal will point to
@@ -80,6 +90,8 @@ module.exports = {
     this.update();
   },
   __stopDragging: function (event) {
+    openHandCursor();
+
     event.stopPropagation();
 
     isDragging = false;
