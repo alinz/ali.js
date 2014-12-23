@@ -73,6 +73,12 @@ Vector2D.prototype = {
   dot : function (v) {
     return (this.x * v.x) + (this.y * v.y) ;
   },
+  distance: function (vect) {
+      var xd = vect.x - this.x,
+          yd = vect.y - this.y;
+
+      return Math.sqrt(xd * xd + yd * yd);
+  },
   angleDegree : function () {
     return this.angleRadian() * Vector2D.TO_DEGREES;
   },
@@ -86,5 +92,8 @@ Vector2D.prototype = {
     return new Vector2D(this.x, this.y);
   }
 };
+
+Vector2D.TO_DEGREES = 180 / Math.PI;
+Vector2D.TO_RADIANS = Math.PI / 180
 
 module.exports = Vector2D;
