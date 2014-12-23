@@ -75,7 +75,7 @@ var Link = React.createClass({
     props = this.props;
 
     //check if both boxes are intersect with each other
-    //if not we are not rending the conetent.
+    //if they are colliding, we don't need to render the line
     if (Physics.collision.boundingBox(props.source.centerPosition,
                                       props.source.size,
                                       props.target.centerPosition,
