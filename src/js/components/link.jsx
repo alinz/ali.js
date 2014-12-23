@@ -13,6 +13,7 @@ var React       = require("react"),
 
     //util
     Vector2D    = require("./../util/math/vector2d.js"),
+    Physics     = require("./../util/math/physics.js"),
 
     //components
     Line        = require("./line.jsx"),
@@ -50,14 +51,37 @@ var Link = React.createClass({
                         width / 2 / absCosAngle :
                         height / 2 / absSinAngle;
 
-    ref.x       = constObj.centerPosition.x + cosAngle * magnitude;
-    ref.y       = constObj.centerPosition.y + sinAngle * magnitude;
+    ref.x       = constObj.centerPosition.x - cosAngle * magnitude;
+    ref.y       = constObj.centerPosition.y - sinAngle * magnitude;
+  },
+  getInitialState: function () {
+    return {
+        source: new Vector2D(),
+        target: new Vector2D()
+    };
   },
   shouldComponentUpdate: function (nextProps, nextState) {
-    return true;
+    if (!this.state.source.equal(nextProps.source.position) ||
+        !this.state.target.equal(nextProps.target.position)) {
+      this.state.source.copyFrom(nextProps.source.position);
+      this.state.target.copyFrom(nextProps.target.position);
+
+      return true;
+    }
+
+    return false;
   },
   render: function () {
     props = this.props;
+
+    //check if both boxes are intersect with each other
+    //if not we are not rending the conetent.
+    if (Physics.collision.boundingBox(props.source.centerPosition,
+                                      props.source.size,
+                                      props.target.centerPosition,
+                                      props.target.size)) {
+      return null;
+    }
 
     angle = tempVector.copyFrom(props.source.position)
                       .sub(props.target.position)
