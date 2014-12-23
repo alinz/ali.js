@@ -19,6 +19,7 @@
   },
 
   "dependencies": {
-    "react": "0.12.1"
+    "react": "0.12.1",
+    "mousetrap": "1.4.6"
   }
 }

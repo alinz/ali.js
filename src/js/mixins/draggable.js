@@ -10,6 +10,11 @@
 "use strict";
 
 var Vector2D          = require("./../util/math/vector2d.js"),
+    Mousetrap         = require("mousetrap"),
+
+    //globals
+    enabled           = false,
+
     draggableStarted  = false,
     isDragging        = false,
     draggingStart     = new Vector2D(),
@@ -19,7 +24,21 @@ var Vector2D          = require("./../util/math/vector2d.js"),
     internalMeta;
 
 module.exports = {
+  initDragging: function () {
+      Mousetrap.bind("space", function () {
+        enabled = true;
+      }, "keydown");
+
+      Mousetrap.bind("space", function () {
+        enabled = false;
+
+        window.removeEventListener("mouseup", this.__stopDragging);
+        window.removeEventListener("mousemove", this.__draggableOnMouseMove);
+      }.bind(this), "keyup");
+  },
   startDragging: function (event) {
+    if (!enabled) return;
+
     draggingStart.copyFrom(this.getMouseTouchPosition(event));
 
     isDragging = true;

@@ -122,6 +122,7 @@ var Scene = React.createClass({
   },
   componentDidMount: function () {
     this.startZoom();
+    this.initDragging();
   },
   componentWillUnmount: function () {
     this.stopZoom();
