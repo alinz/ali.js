@@ -15,19 +15,25 @@ var Mousetrap = require("mousetrap"),
         key: "n",
         defaultFunc: function () {}
       },
+      "link": {
+        key: "l",
+        defaultFunc: function () {}
+      },
       "default": {
         key: "esc",
         defaultFunc: function () {
-          
+
         }
       }
     };
 
 
 var keybind = {
-    configuration: configuration,
     bind: function (keyName, func) {
       var config = configuration[keyName];
+      if (!config) {
+        throw new Error("keyName not found.");
+      }
       Mousetrap.bind(config.key, func, config.mode);
     }
 };

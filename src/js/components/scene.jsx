@@ -13,6 +13,8 @@ var React               = require("react"),
 
     //utils
     Vector2D            = require("./../util/math/vector2d.js"),
+    keybind             = require("./../util/keybind.js"),
+    generator           = require("./../util/generator.js"),
 
     //mixins
     AnimationFrameMixin = require("./../mixins/animation-frame.js"),
@@ -32,14 +34,25 @@ var React               = require("react"),
 React.initializeTouchEvents(true);
 
 function processData(source) {
-  var counter = 1,
-      result = { nodes: {}, links: [] },
+  var result = { nodes: {}, links: [] },
       linkObj,
-      nodeObj;
+      nodeObj,
+      tempId,
+      tempSource,
+      tempTarget;
+
+  //we need to generate id per load. as an example,
+  //if some node generated and deleted, the ranaming id can
+  //be overriden by new node. So by having a a convertorMap,
+  //we can generate id per load.
+  var mapId = {};
 
   source.nodes.forEach(function (node) {
-    result.nodes[node.id] = {
-      id: node.id,
+    tempId = "node:" + generator.genId();
+    mapId[node.id] = tempId;
+
+    result.nodes[tempId] = {
+      id: tempId,
       data: node.data,
       position: new Vector2D(node.position.x, node.position.y),
       links: []
@@ -47,15 +60,19 @@ function processData(source) {
   });
 
   source.links.forEach(function (link) {
-    counter++;
+    tempId = "link:" + generator.genId();
+
+    tempSource = mapId[link.source];
+    tempTarget = mapId[link.target];
+
     linkObj = {
-      id: "link" + counter,
-      source: link.source,
-      target: link.target,
+      id: tempId,
+      source: tempSource,
+      target: tempTarget,
       data: link.data
     };
 
-    nodeObj = result.nodes[link.source];
+    nodeObj = result.nodes[tempSource];
 
     if (!nodeObj) {
       throw "a link tries to connect to a non-exists node.";
@@ -123,6 +140,19 @@ var Scene = React.createClass({
   componentDidMount: function () {
     this.startZoom();
     this.initDragging();
+
+    keybind.bind("addNode", function () {
+      var tempId = "node:" + generator.genId();
+      this.state.source.nodes[tempId] = {
+        id: tempId,
+        data: null,
+        position: new Vector2D(),
+        links: []
+      };
+
+      this.update();
+
+    }.bind(this));
   },
   componentWillUnmount: function () {
     this.stopZoom();
@@ -140,7 +170,6 @@ var Scene = React.createClass({
 
     nodes = Object.keys(state.source.nodes).map(function (nodeId) {
       nodeObj = state.source.nodes[nodeId];
-
 
       return <Node key={nodeObj.id}
                    scale={state.scale}
