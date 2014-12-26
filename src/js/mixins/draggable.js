@@ -11,6 +11,10 @@
 
 var Vector2D          = require("./../util/math/vector2d.js"),
     Mousetrap         = require("mousetrap"),
+    cursor            = require("./../util/cursor.js"),
+
+    //const cursor classes enum
+    cursorClasses     = cursor.classes,
 
     //globals
     draggableStarted  = false,
@@ -21,31 +25,12 @@ var Vector2D          = require("./../util/math/vector2d.js"),
     globalMeta,
     internalMeta;
 
-function defaultCursor() {
-  document.body.className = "";
-}
-
-function openHandCursor() {
-  var body = document.body;
-  if (body.className !== "cursor-open-hand") {
-    body.className = "cursor-open-hand";
-  }
-}
-
-function closeHandCursor() {
-  var body = document.body;
-  if (body.className !== "cursor-closed-hand") {
-    body.className = "cursor-closed-hand";
-  }
-}
-
-
 module.exports = {
   initDragging: function () {
-    openHandCursor();
+    cursor.set(cursorClasses.OpenHand);
   },
   startDragging: function (event) {
-    closeHandCursor();
+    cursor.set(cursorClasses.ClosedHand);
 
     draggingStart.copyFrom(this.getMouseTouchPosition(event));
 
@@ -59,7 +44,7 @@ module.exports = {
 
     if (!isDragging) return;
 
-    closeHandCursor();
+    cursor.set(cursorClasses.ClosedHand);
 
     //these two variables are set in a such a way that if the object is scene
     //if the object is a scene object, both global and internal will point to
@@ -90,7 +75,7 @@ module.exports = {
     this.update();
   },
   __stopDragging: function (event) {
-    openHandCursor();
+    cursor.set(cursorClasses.OpenHand);
 
     event.stopPropagation();
 

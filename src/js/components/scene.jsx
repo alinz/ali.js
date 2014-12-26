@@ -135,6 +135,12 @@ var Scene = React.createClass({
 
     this.update();
   },
+  __addNewLink: function () {
+    //we need to disable the drgging and panning.
+
+
+      console.log("add new link");
+  },
   getInitialState: function () {
     return {
       scale: 1.0,
@@ -154,6 +160,7 @@ var Scene = React.createClass({
     this.initDragging();
 
     keybind.bind("addNode", this.__addNewNode);
+    keybind.bind("addLink", this.__addNewLink);
   },
   componentWillUnmount: function () {
     this.stopZoom();

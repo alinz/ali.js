@@ -15,7 +15,7 @@ var Mousetrap = require("mousetrap"),
         key: "n",
         defaultFunc: function () {}
       },
-      "link": {
+      "addLink": {
         key: "l",
         defaultFunc: function () {}
       },
