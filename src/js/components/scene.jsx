@@ -123,6 +123,18 @@ var Scene = React.createClass({
       }//end of shape of source
     )//end of source
   },
+  __addNewNode: function () {
+    var tempId = "node:" + generator.genId();
+
+    this.state.source.nodes[tempId] = {
+      id: tempId,
+      data: null,
+      position: new Vector2D(),
+      links: []
+    };
+
+    this.update();
+  },
   getInitialState: function () {
     return {
       scale: 1.0,
@@ -141,18 +153,7 @@ var Scene = React.createClass({
     this.startZoom();
     this.initDragging();
 
-    keybind.bind("addNode", function () {
-      var tempId = "node:" + generator.genId();
-      this.state.source.nodes[tempId] = {
-        id: tempId,
-        data: null,
-        position: new Vector2D(),
-        links: []
-      };
-
-      this.update();
-
-    }.bind(this));
+    keybind.bind("addNode", this.__addNewNode);
   },
   componentWillUnmount: function () {
     this.stopZoom();
