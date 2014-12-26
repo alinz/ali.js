@@ -15,6 +15,7 @@ var React               = require("react"),
     Vector2D            = require("./../util/math/vector2d.js"),
     keybind             = require("./../util/keybind.js"),
     generator           = require("./../util/generator.js"),
+    cursor              = require("./../util/cursor.js"),
 
     //mixins
     AnimationFrameMixin = require("./../mixins/animation-frame.js"),
@@ -28,6 +29,7 @@ var React               = require("react"),
     Link                = require("./link.jsx"),
 
     //global variables
+    cursorClasses       = cursor.classes,
     transformMatrix     = [0, 0, 0, 0, 0, 0],
     transform           = "";
 
@@ -135,11 +137,16 @@ var Scene = React.createClass({
 
     this.update();
   },
+  //this method called when the default key is being pressed.
+  //default key by default is Esc key which resets all the states to origianl
+  __defaultSetting: function () {
+    this.enableDragging(true);
+    cursor.set(cursorClasses.OpenHand);
+  },
   __addNewLink: function () {
-    //we need to disable the drgging and panning.
-
-
-      console.log("add new link");
+    //we need to disable the dragging and panning.
+    this.enableDragging(false);
+    cursor.set(cursorClasses.Default);
   },
   getInitialState: function () {
     return {
@@ -161,6 +168,7 @@ var Scene = React.createClass({
 
     keybind.bind("addNode", this.__addNewNode);
     keybind.bind("addLink", this.__addNewLink);
+    keybind.bind("default", this.__defaultSetting);
   },
   componentWillUnmount: function () {
     this.stopZoom();

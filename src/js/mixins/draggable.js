@@ -23,13 +23,22 @@ var Vector2D          = require("./../util/math/vector2d.js"),
     draggingMove      = new Vector2D(),
     clone             = new Vector2D(),
     globalMeta,
-    internalMeta;
+    internalMeta,
+
+    //by default it's enabled. it can be changed by using
+    //enableDargging method.
+    isDraggingEnabled = true;
 
 module.exports = {
   initDragging: function () {
     cursor.set(cursorClasses.OpenHand);
   },
+  enableDragging: function (value) {
+    isDraggingEnabled = !!value;
+  },
   startDragging: function (event) {
+    if (!isDraggingEnabled) { return; }
+
     cursor.set(cursorClasses.ClosedHand);
 
     draggingStart.copyFrom(this.getMouseTouchPosition(event));
@@ -40,6 +49,8 @@ module.exports = {
     window.addEventListener("mousemove", this.__draggableOnMouseMove);
   },
   __draggableOnMouseMove: function (event) {
+    if (!isDraggingEnabled) { return; }
+
     event.stopPropagation();
 
     if (!isDragging) return;
@@ -75,6 +86,8 @@ module.exports = {
     this.update();
   },
   __stopDragging: function (event) {
+    if (!isDraggingEnabled) { return; }
+
     cursor.set(cursorClasses.OpenHand);
 
     event.stopPropagation();
