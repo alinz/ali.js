@@ -141,6 +141,7 @@ var Scene = React.createClass({
     nodes = Object.keys(state.source.nodes).map(function (nodeId) {
       nodeObj = state.source.nodes[nodeId];
 
+
       return <Node key={nodeObj.id}
                    scale={state.scale}
                    objRef={nodeObj}
