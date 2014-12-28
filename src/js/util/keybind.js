@@ -9,41 +9,36 @@
 
 var Mousetrap = require("mousetrap"),
 
-    //globals
-    configuration = {
-      "addNode": {
-        key: "n",
-        defaultFunc: function () {}
-      },
-      "addLink": {
-        key: "l",
-        defaultFunc: function () {}
-      },
-      "default": {
-        key: "esc",
-        defaultFunc: function () {
+    //global
+    KeyConstant = {
+      Default:  0,
+      AddNode:  1,
+      AddLink: 2
+    },
+    KeyMap = {},
 
+    currentState = KeyConstant.Default,
+
+    keybind = {
+        constant: KeyConstant,
+        currentStateIs: function (state) {
+          return state === currentState
+        },
+        bind: function (state, func) {
+          var key = KeyMap[state];
+          if (typeof key === "undefined") {
+            throw new Error("key state is wrong.");
+          }
+          Mousetrap.bind(key, function (event) {
+            currentState = state;
+            func(event);
+          });
         }
-      }
     };
 
 
-var keybind = {
-    bind: function (keyName, func) {
-      var config = configuration[keyName];
-      if (!config) {
-        throw new Error("keyName not found.");
-      }
-      Mousetrap.bind(config.key, func, config.mode);
-    }
-};
-
-//default keybinding configuration
-Object.keys(configuration).forEach(function (keyName) {
-    var config = configuration[keyName];
-    if (config.defaultFunc) {
-      keybind.bind(keyName, config.defaultFunc);
-    }
-});
+KeyMap[KeyConstant.Default]   = "esc";
+KeyMap[KeyConstant.AddNode]   = "n";
+KeyMap[KeyConstant.AddLink]  = "l";
 
 module.exports = keybind;

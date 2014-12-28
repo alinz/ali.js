@@ -61,6 +61,9 @@ var Node = React.createClass({
     this.calculateSize();
     return true;
   },
+  __onMouseDown: function (event) {
+
+  },
   render: function () {
     this.calculateSize();
 

@@ -10,7 +10,6 @@
 "use strict";
 
 var Vector2D          = require("./../util/math/vector2d.js"),
-    Mousetrap         = require("mousetrap"),
     cursor            = require("./../util/cursor.js"),
 
     //const cursor classes enum

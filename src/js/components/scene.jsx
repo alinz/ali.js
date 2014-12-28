@@ -166,9 +166,9 @@ var Scene = React.createClass({
     this.startZoom();
     this.initDragging();
 
-    keybind.bind("addNode", this.__addNewNode);
-    keybind.bind("addLink", this.__addNewLink);
-    keybind.bind("default", this.__defaultSetting);
+    keybind.bind(keybind.constant.AddNode, this.__addNewNode);
+    keybind.bind(keybind.constant.AddLink, this.__addNewLink);
+    keybind.bind(keybind.constant.Default, this.__defaultSetting);
   },
   componentWillUnmount: function () {
     this.stopZoom();
