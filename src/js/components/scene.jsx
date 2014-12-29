@@ -54,7 +54,7 @@ function processData(source) {
   var mapId = {};
 
   source.nodes.forEach(function (node) {
-    tempId = "node:" + generator.genId();
+    tempId = generator.genNodeId();
     mapId[node.id] = tempId;
 
     result.nodes[tempId] = {
@@ -65,13 +65,11 @@ function processData(source) {
   });
 
   source.links.forEach(function (link) {
-    tempId = "link:" + generator.genId();
-
     tempSource = mapId[link.source];
     tempTarget = mapId[link.target];
 
     linkObj = {
-      id: tempId,
+      id: generator.genLinkId(),
       source: tempSource,
       target: tempTarget,
       data: link.data

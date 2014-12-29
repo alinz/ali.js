@@ -27,7 +27,12 @@ var React           = require("react"),
     sourceClone     = new Vector2D(),
     props,
     objRef,
-    tempConnectNodes;
+    tempConnectNodes,
+
+    //I need these two pointers which point to function which contains
+    //listeners.
+    mouseUpPtr,
+    mouseMovePtr;
 
 //obj contains 3 variables, position, centerPosition and size
 function updateCenterPosition(obj) {
@@ -86,20 +91,46 @@ var Node = React.createClass({
 
         sourceClone.copyFrom(this.getMouseTouchPosition(event));
 
-        window.addEventListener("mouseup", this.__stopDynamicLink);
-        window.addEventListener("mousemove", this.__onMouseMoveDynamicLink);
+        //remove the previous global handlers
+        if (mouseUpPtr) {
+          window.removeEventListener("mouseup", mouseUpPtr);
+        }
+
+        if (mouseMovePtr) {
+          window.removeEventListener("mousemove", mouseMovePtr);
+        }
+
+        //create a brand new global handlers
+        mouseUpPtr = function (event) {
+          this.__stopDynamicLink(event);
+        }.bind(this);
+
+        mouseMovePtr = function (event) {
+          this.__onMouseMoveDynamicLink(event);
+        }.bind(this);
+
+        //attach brand new handlers
+        window.addEventListener("mouseup", mouseUpPtr);
+        window.addEventListener("mousemove", mouseMovePtr);
         break;
     }
   },
   __stopDynamicLink: function (event) {
-    console.log("cleaned up code");
     tempConnectNodes = this.props.connectNodes;
     //we just need to set both position similar to make the scene not
     //draw it.
     tempConnectNodes.source.position.copyFrom(tempConnectNodes.target.position);
 
-    window.removeEventListener("mouseup", this.__stopDynamicLink);
-    window.removeEventListener("mousemove", this.__onMouseMoveDynamicLink);
+    //remove global handlers
+    if (mouseUpPtr) {
+      window.removeEventListener("mouseup", mouseUpPtr);
+      mouseUpPtr = null;
+    }
+
+    if (mouseMovePtr) {
+      window.removeEventListener("mousemove", mouseMovePtr);
+      mouseMovePtr = null;
+    }
 
     this.update();
   },
@@ -114,7 +145,8 @@ var Node = React.createClass({
     this.update();
   },
   __onMouseUp: function () {
-    console.log("wow");
+    objRef = this.props.objRef;
+
     switch (keybind.getCurrentState()) {
       case keybind.constant.AddLink:
         tempConnectNodes = this.props.connectNodes;

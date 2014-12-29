@@ -14,5 +14,11 @@ var idGenCounter = 0;
 module.exports = {
   genId: function () {
     return ++idGenCounter;
+  },
+  genNodeId: function () {
+    return "node:" + this.genId();
+  },
+  genLinkId: function () {
+    return "link:" + this.genId();
   }
 };
