@@ -24,15 +24,24 @@ var Mousetrap = require("mousetrap"),
         getCurrentState: function (state) {
           return currentState;
         },
-        bind: function (state, func) {
+        __getKey: function (state) {
           var key = KeyMap[state];
           if (typeof key === "undefined") {
             throw new Error("key state is wrong.");
           }
+
+          return key;
+        },
+        bind: function (state, func) {
+          var key = this.__getKey(state);
           Mousetrap.bind(key, function (event) {
             currentState = state;
             func(event);
           });
+        },
+        trigger: function (state) {
+          var key = this.__getKey(state);
+          Mousetrap.trigger(key);
         }
     };
 

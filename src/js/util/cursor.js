@@ -16,7 +16,8 @@ var body = document.body,
     cursorClasses = {
       Default:    "",
       OpenHand:   "cursor-open-hand",
-      ClosedHand: "cursor-closed-hand"
+      ClosedHand: "cursor-closed-hand",
+      Pointer:    "cursor-pointer"
     };
 
 function changeClassIfNot(value) {

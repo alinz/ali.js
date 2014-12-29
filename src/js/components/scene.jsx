@@ -134,6 +134,9 @@ var Scene = React.createClass({
       position: new Vector2D()
     };
 
+    //we set the key back to default.
+    keybind.trigger(keybind.constant.Default);
+
     this.update();
   },
   //this method called when the default key is being pressed.
@@ -145,7 +148,7 @@ var Scene = React.createClass({
   __addNewLink: function () {
     //we need to disable the dragging and panning.
     this.enableDragging(false);
-    cursor.set(cursorClasses.Default);
+    cursor.set(cursorClasses.Pointer);
   },
   getInitialState: function () {
     return {
