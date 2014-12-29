@@ -21,8 +21,8 @@ var Mousetrap = require("mousetrap"),
 
     keybind = {
         constant: KeyConstant,
-        currentStateIs: function (state) {
-          return state === currentState
+        getCurrentState: function (state) {
+          return currentState;
         },
         bind: function (state, func) {
           var key = KeyMap[state];
@@ -39,6 +39,6 @@ var Mousetrap = require("mousetrap"),
 
 KeyMap[KeyConstant.Default]   = "esc";
 KeyMap[KeyConstant.AddNode]   = "n";
-KeyMap[KeyConstant.AddLink]  = "l";
+KeyMap[KeyConstant.AddLink]   = "l";
 
 module.exports = keybind;

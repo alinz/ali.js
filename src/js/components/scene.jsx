@@ -31,7 +31,9 @@ var React               = require("react"),
     //global variables
     cursorClasses       = cursor.classes,
     transformMatrix     = [0, 0, 0, 0, 0, 0],
-    transform           = "";
+    transform           = "",
+
+    dynamicLinkId       = "link:" + generator.genId();
 
 React.initializeTouchEvents(true);
 
@@ -153,6 +155,18 @@ var Scene = React.createClass({
       scale: 1.0,
       position: new Vector2D(),
       source: null,
+      connectNodes: {
+          source: {
+            centerPosition: new Vector2D(),
+            position: new Vector2D(),
+            size: new Vector2D(),
+          },
+          target: {
+            centerPosition: new Vector2D(),
+            position: new Vector2D(),
+            size: new Vector2D(1, 1), //target size never changes.
+          }
+      },
       renderTrigger: 0
     };
   },
@@ -181,6 +195,7 @@ var Scene = React.createClass({
   render: function () {
     var nodeObj,
         nodes,
+        dynamicLink,
         links = [],
         state = this.state;
 
@@ -191,7 +206,8 @@ var Scene = React.createClass({
                    scale={state.scale}
                    objRef={nodeObj}
                    label={"node.label"}
-                   update={this.update}/>
+                   update={this.update}
+                   connectNodes={state.connectNodes}/>
     }.bind(this));
 
     state.source.links.forEach(function (link) {
@@ -212,7 +228,15 @@ var Scene = React.createClass({
 
     transform = "matrix(" + transformMatrix.join(",") + ")";
 
-    //<g dangerouslySetInnerHTML={{__html: '<use xlink:href="#group-nodes"/>'}}/>
+
+    if (state.connectNodes.source.position.distance(
+          state.connectNodes.target.position) > 0) {
+      links.push(
+          <Link key={dynamicLinkId}
+                source={state.connectNodes.source}
+                target={state.connectNodes.target}/>
+      );
+    }
 
     return (
       <svg onMouseDown={this.startDragging}>

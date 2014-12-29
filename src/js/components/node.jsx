@@ -17,6 +17,7 @@ var React           = require("react"),
 
     //util
     Vector2D        = require("./../util/math/vector2d.js"),
+    keybind         = require("./../util/keybind.js"),
 
     //mixins
     DraggableMixin  = require("./../mixins/draggable.js"),
@@ -24,7 +25,15 @@ var React           = require("react"),
 
     //globals
     props,
-    objRef;
+    objRef,
+    tempConnectNodes;
+
+
+//obj contains 3 variables, position, centerPosition and size
+function updateCenterPosition(obj) {
+  obj.centerPosition.x = obj.position.x + obj.size.x / 2;
+  obj.centerPosition.y = obj.position.y + obj.size.y / 2;
+}
 
 var Node = React.createClass({
   mixins: [
@@ -35,7 +44,8 @@ var Node = React.createClass({
     scale: React.PropTypes.number.isRequired,
     label: React.PropTypes.string.isRequired,
     update: React.PropTypes.func.isRequired,
-    objRef: React.PropTypes.any.isRequired
+    objRef: React.PropTypes.any.isRequired,
+    connectNodes: React.PropTypes.any.isRequired
   },
   calculateSize: function () {
     objRef = this.props.objRef;
@@ -48,8 +58,7 @@ var Node = React.createClass({
       objRef.centerPosition = new Vector2D();
     }
 
-    objRef.centerPosition.x = objRef.position.x + objRef.size.x / 2;
-    objRef.centerPosition.y = objRef.position.y + objRef.size.y / 2;
+    updateCenterPosition(objRef);
   },
   update: function () {
     this.props.update();
@@ -62,7 +71,51 @@ var Node = React.createClass({
     return true;
   },
   __onMouseDown: function (event) {
+    switch (keybind.getCurrentState()) {
+      case keybind.constant.Default:
+        this.startDragging(event);
+        break;
+      case keybind.constant.AddLink:
+        tempConnectNodes = this.props.connectNodes;
+        objRef = this.props.objRef;
 
+        //set connectNodes source variable
+        tempConnectNodes.source.centerPosition.copyFrom(objRef.centerPosition);
+        tempConnectNodes.source.size.copyFrom(objRef.size);
+        tempConnectNodes.source.position.copyFrom(objRef.position);
+
+        //set connectNodes target variables except size
+        tempConnectNodes.target.position.x = event.clientX;
+        tempConnectNodes.target.position.y = event.clientY;
+        //calculate center
+        updateCenterPosition(tempConnectNodes.target);
+
+        window.addEventListener("mouseup", this.__stopDynamicLink);
+        window.addEventListener("mousemove", this.__onMouseMoveDynamicLink);
+        break;
+    }
+  },
+  __stopDynamicLink: function (event) {
+    tempConnectNodes = this.props.connectNodes;
+    //we just need to set both position similar to make the scene not
+    //draw it.
+    tempConnectNodes.source.position.copyFrom(tempConnectNodes.target.position);
+
+    window.removeEventListener("mouseup", this.__stopDynamicLink);
+    window.removeEventListener("mousemove", this.__onMouseMoveDynamicLink);
+
+    this.update();
+  },
+  __onMouseMoveDynamicLink: function (event) {
+    tempConnectNodes = this.props.connectNodes;
+    
+    //set connectNodes target variables except size
+    tempConnectNodes.target.position.x = event.clientX;
+    tempConnectNodes.target.position.y = event.clientY;
+    //calculate center
+    updateCenterPosition(tempConnectNodes.target);
+
+    this.update();
   },
   render: function () {
     this.calculateSize();
@@ -71,7 +124,8 @@ var Node = React.createClass({
     objRef = props.objRef;
 
     return (
-      <g onMouseDown={this.startDragging}>
+      <g onMouseDown={this.__onMouseDown}
+         onMouseUp={this.__onMouseUp}>
         <Rect x={objRef.position.x}
               y={objRef.position.y}
               width={objRef.size.x}
