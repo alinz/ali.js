@@ -60,8 +60,7 @@ function processData(source) {
     result.nodes[tempId] = {
       id: tempId,
       data: node.data,
-      position: new Vector2D(node.position.x, node.position.y),
-      links: []
+      position: new Vector2D(node.position.x, node.position.y)
     }
   });
 
@@ -84,7 +83,6 @@ function processData(source) {
       throw "a link tries to connect to a non-exists node.";
     }
 
-    nodeObj.links.push(linkObj);
     result.links.push(linkObj);
   });
 
@@ -135,8 +133,7 @@ var Scene = React.createClass({
     this.state.source.nodes[tempId] = {
       id: tempId,
       data: null,
-      position: new Vector2D(),
-      links: []
+      position: new Vector2D()
     };
 
     this.update();
@@ -193,8 +190,20 @@ var Scene = React.createClass({
     });
   },
   shouldNodeConnect: function () {
-    var connectNodes = this.state.connectNodes;
-    console.log("connect ", connectNodes.source.id, connectNodes.target.id);
+    var state         = this.state,
+        connectNodes  = state.connectNodes,
+        links         = state.source.links,
+
+        linkId        = generator.genId();
+
+    console.log(connectNodes.source.id, connectNodes.target.id);
+
+    links.push({
+      id: linkId,
+      source: connectNodes.source.id,
+      target: connectNodes.target.id,
+      data: null
+    });
   },
   render: function () {
     var nodeObj,
@@ -239,6 +248,7 @@ var Scene = React.createClass({
     state.connectNodes.source.position.div(state.scale);
     state.connectNodes.target.position.div(state.scale);
 
+    dynamicLine = null;
     if (state.connectNodes.source.position.distance(
           state.connectNodes.target.position) > 0) {
       dynamicLine = (<Line key={dynamicLineId}

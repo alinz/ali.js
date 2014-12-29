@@ -92,6 +92,7 @@ var Node = React.createClass({
     }
   },
   __stopDynamicLink: function (event) {
+    console.log("cleaned up code");
     tempConnectNodes = this.props.connectNodes;
     //we just need to set both position similar to make the scene not
     //draw it.
@@ -113,6 +114,7 @@ var Node = React.createClass({
     this.update();
   },
   __onMouseUp: function () {
+    console.log("wow");
     switch (keybind.getCurrentState()) {
       case keybind.constant.AddLink:
         tempConnectNodes = this.props.connectNodes;
