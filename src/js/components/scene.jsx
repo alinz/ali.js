@@ -16,6 +16,7 @@ var React               = require("react"),
     keybind             = require("./../util/keybind.js"),
     generator           = require("./../util/generator.js"),
     cursor              = require("./../util/cursor.js"),
+    file                = require("./../util/file.js"),
 
     //mixins
     AnimationFrameMixin = require("./../mixins/animation-frame.js"),
@@ -87,6 +88,34 @@ function processData(source) {
   return result;
 }
 
+function objectToJSON(obj) {
+  var data = { links: [], nodes: [] },
+      node;
+
+  Object.keys(obj.nodes).forEach(function (nodeId) {
+      node = obj.nodes[nodeId];
+      data.nodes.push({
+        id: node.id,
+        data: node.data,
+        position: {
+          x: node.position.x,
+          y: node.position.y
+        }
+      });
+  });
+
+  obj.links.forEach(function (link) {
+    data.links.push({
+      id: link.id,
+      source: link.source,
+      target: link.target,
+      data: link.data
+    });
+  });
+
+  return data;
+}
+
 
 var Scene = React.createClass({
   mixins: [
@@ -150,6 +179,15 @@ var Scene = React.createClass({
     this.enableDragging(false);
     cursor.set(cursorClasses.Pointer);
   },
+  __saveAsFile: function (event) {
+    event.preventDefault();
+
+    var contentAsString = JSON.stringify(objectToJSON(this.state.source));
+
+    file.saveAs("ali.json", contentAsString, "text/json");
+
+    keybind.trigger(keybind.constant.Default);
+  },
   getInitialState: function () {
     return {
       scale: 1.0,
@@ -181,6 +219,7 @@ var Scene = React.createClass({
     keybind.bind(keybind.constant.AddNode, this.__addNewNode);
     keybind.bind(keybind.constant.AddLink, this.__addNewLink);
     keybind.bind(keybind.constant.Default, this.__defaultSetting);
+    keybind.bind(keybind.constant.Save, this.__saveAsFile);
   },
   componentWillUnmount: function () {
     this.stopZoom();
@@ -196,8 +235,6 @@ var Scene = React.createClass({
         links         = state.source.links,
 
         linkId        = generator.genId();
-
-    console.log(connectNodes.source.id, connectNodes.target.id);
 
     links.push({
       id: linkId,

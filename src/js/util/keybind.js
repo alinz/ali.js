@@ -13,7 +13,8 @@ var Mousetrap = require("mousetrap"),
     KeyConstant = {
       Default:  0,
       AddNode:  1,
-      AddLink: 2
+      AddLink:  2,
+      Save:     3
     },
     KeyMap = {},
 
@@ -45,9 +46,9 @@ var Mousetrap = require("mousetrap"),
         }
     };
 
-
 KeyMap[KeyConstant.Default]   = "esc";
 KeyMap[KeyConstant.AddNode]   = "n";
 KeyMap[KeyConstant.AddLink]   = "l";
+KeyMap[KeyConstant.Save]      = "mod+s";
 
 module.exports = keybind;

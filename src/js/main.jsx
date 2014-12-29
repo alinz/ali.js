@@ -12,46 +12,7 @@
 var React = require("react"),
     Scene = require("./components/scene.jsx"),
 
-    data = {
-      links: [
-        {
-          source: "node1",
-          target: "node2",
-          data: []
-        },
-        {
-          source: "node2",
-          target: "node3",
-          data: []
-        }
-      ],
-      nodes: [
-        {
-          id: "node1",
-          data: [],
-          position: {
-            x: 10,
-            y: 20
-          }
-        },
-        {
-          id: "node2",
-          data: [],
-          position: {
-            x: 40,
-            y: 20
-          }
-        },
-        {
-          id: "node3",
-          data: [],
-          position: {
-            x: 40,
-            y: 20
-          }
-        }
-      ]
-    };
+    data = { nodes:[], links:[] };
 
 React.render(
   <Scene source={data}/>,
