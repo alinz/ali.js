@@ -26,7 +26,11 @@ var React           = require("react"),
     //globals
     props,
     objRef,
-    tempConnectNodes;
+    tempConnectNodes,
+
+    draggingStart     = new Vector2D(),
+    draggingMove      = new Vector2D(),
+    clone             = new Vector2D();
 
 
 //obj contains 3 variables, position, centerPosition and size
@@ -44,6 +48,7 @@ var Node = React.createClass({
     scale: React.PropTypes.number.isRequired,
     label: React.PropTypes.string.isRequired,
     update: React.PropTypes.func.isRequired,
+    shouldNodeConnect: React.PropTypes.func.isRequired,
     objRef: React.PropTypes.any.isRequired,
     connectNodes: React.PropTypes.any.isRequired
   },
@@ -79,10 +84,16 @@ var Node = React.createClass({
         tempConnectNodes = this.props.connectNodes;
         objRef = this.props.objRef;
 
+        //we need to keep track of id because later we have to bind the
+        //source and target nodes.
+        tempConnectNodes.source.id = objRef.id;
+
         //set connectNodes source variable
         tempConnectNodes.source.centerPosition.copyFrom(objRef.centerPosition);
         tempConnectNodes.source.size.copyFrom(objRef.size);
         tempConnectNodes.source.position.copyFrom(objRef.position);
+
+        //tempConnectNodes.target.size.div(this.props.scale);
 
         //set connectNodes target variables except size
         tempConnectNodes.target.position.x = event.clientX;
@@ -108,14 +119,35 @@ var Node = React.createClass({
   },
   __onMouseMoveDynamicLink: function (event) {
     tempConnectNodes = this.props.connectNodes;
-    
+
     //set connectNodes target variables except size
     tempConnectNodes.target.position.x = event.clientX;
     tempConnectNodes.target.position.y = event.clientY;
+
+    console.log(this.props.scale);
+
+    // tempConnectNodes.target.position.x -= tempConnectNodes.target.size.x / 2;
+    // tempConnectNodes.target.position.y -= tempConnectNodes.target.size.y / 2;
+
+    //tempConnectNodes.target.position.div(this.props.scale);
+
     //calculate center
     updateCenterPosition(tempConnectNodes.target);
 
     this.update();
+  },
+  __onMouseUp: function () {
+    switch (keybind.getCurrentState()) {
+      case keybind.constant.AddLink:
+        tempConnectNodes = this.props.connectNodes;
+        tempConnectNodes.target.id = objRef.id;
+
+        this.props.shouldNodeConnect();
+
+        break;
+      default:
+        //ignore: do nothing
+    }
   },
   render: function () {
     this.calculateSize();
@@ -124,8 +156,7 @@ var Node = React.createClass({
     objRef = props.objRef;
 
     return (
-      <g onMouseDown={this.__onMouseDown}
-         onMouseUp={this.__onMouseUp}>
+      <g onMouseDown={this.__onMouseDown} onMouseUp={this.__onMouseUp}>
         <Rect x={objRef.position.x}
               y={objRef.position.y}
               width={objRef.size.x}

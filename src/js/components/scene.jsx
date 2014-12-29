@@ -157,14 +157,16 @@ var Scene = React.createClass({
       source: null,
       connectNodes: {
           source: {
+            id: "",
             centerPosition: new Vector2D(),
             position: new Vector2D(),
             size: new Vector2D(),
           },
           target: {
+            id: "",
             centerPosition: new Vector2D(),
             position: new Vector2D(),
-            size: new Vector2D(1, 1), //target size never changes.
+            size: new Vector2D(), //target size never changes.
           }
       },
       renderTrigger: 0
@@ -192,6 +194,10 @@ var Scene = React.createClass({
       renderTrigger: this.state.renderTrigger++
     });
   },
+  shouldNodeConnect: function () {
+    var connectNodes = this.state.connectNodes;
+    console.log("connect ", connectNodes.source.id, connectNodes.target.id);
+  },
   render: function () {
     var nodeObj,
         nodes,
@@ -206,6 +212,7 @@ var Scene = React.createClass({
                    scale={state.scale}
                    objRef={nodeObj}
                    label={"node.label"}
+                   shouldNodeConnect={this.shouldNodeConnect}
                    update={this.update}
                    connectNodes={state.connectNodes}/>
     }.bind(this));
