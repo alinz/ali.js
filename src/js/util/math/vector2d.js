@@ -66,6 +66,8 @@ Vector2D.prototype = {
   div: function (value) {
     this.x /= value;
     this.y /= value;
+
+    return this;
   },
   magnitude : function () {
     return Math.sqrt((this.x * this.x) + (this.y * this.y));

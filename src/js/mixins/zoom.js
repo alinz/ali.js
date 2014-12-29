@@ -9,7 +9,10 @@
 
 "use strict";
 
-var zoomStarted   = false,
+var keybind       = require("./../util/keybind.js"),
+
+    //global
+    zoomStarted   = false,
     zoomFactor    = 0,
     x             = 0,
     y             = 0,
@@ -18,6 +21,9 @@ var zoomStarted   = false,
     scaleD;
 
 function onMouseWheel(event) {
+  if (keybind.getCurrentState(keybind.constant.AddLink)) {
+    return;
+  }
   event.preventDefault();
 
   metaData = this.state;

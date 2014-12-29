@@ -27,13 +27,15 @@ var React               = require("react"),
     //components
     Node                = require("./node.jsx"),
     Link                = require("./link.jsx"),
+    Line                = require("./line.jsx"),
 
     //global variables
     cursorClasses       = cursor.classes,
     transformMatrix     = [0, 0, 0, 0, 0, 0],
     transform           = "",
 
-    dynamicLinkId       = "link:" + generator.genId();
+    dynamicLineId       = "link:" + generator.genId(),
+    dynamicLine;
 
 React.initializeTouchEvents(true);
 
@@ -158,15 +160,11 @@ var Scene = React.createClass({
       connectNodes: {
           source: {
             id: "",
-            centerPosition: new Vector2D(),
-            position: new Vector2D(),
-            size: new Vector2D(),
+            position: new Vector2D()
           },
           target: {
             id: "",
-            centerPosition: new Vector2D(),
-            position: new Vector2D(),
-            size: new Vector2D(), //target size never changes.
+            position: new Vector2D()
           }
       },
       renderTrigger: 0
@@ -235,18 +233,22 @@ var Scene = React.createClass({
 
     transform = "matrix(" + transformMatrix.join(",") + ")";
 
+    //we need to do the transformation here to make sure line is align.
+    state.connectNodes.source.position.sub(state.position);
+    state.connectNodes.target.position.sub(state.position);
+    state.connectNodes.source.position.div(state.scale);
+    state.connectNodes.target.position.div(state.scale);
 
     if (state.connectNodes.source.position.distance(
           state.connectNodes.target.position) > 0) {
-      links.push(
-          <Link key={dynamicLinkId}
-                source={state.connectNodes.source}
-                target={state.connectNodes.target}/>
-      );
+      dynamicLine = (<Line key={dynamicLineId}
+                          source={state.connectNodes.source.position}
+                          target={state.connectNodes.target.position}/>);
     }
 
     return (
       <svg onMouseDown={this.startDragging}>
+        <g transform={transform}>{dynamicLine}</g>
         <g transform={transform}>{nodes}</g>
         <g transform={transform}>{links}</g>
       </svg>

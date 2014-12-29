@@ -24,14 +24,10 @@ var React           = require("react"),
     TouchUtilMixin  = require("./../mixins/touch-util.js"),
 
     //globals
+    sourceClone     = new Vector2D(),
     props,
     objRef,
-    tempConnectNodes,
-
-    draggingStart     = new Vector2D(),
-    draggingMove      = new Vector2D(),
-    clone             = new Vector2D();
-
+    tempConnectNodes;
 
 //obj contains 3 variables, position, centerPosition and size
 function updateCenterPosition(obj) {
@@ -88,18 +84,7 @@ var Node = React.createClass({
         //source and target nodes.
         tempConnectNodes.source.id = objRef.id;
 
-        //set connectNodes source variable
-        tempConnectNodes.source.centerPosition.copyFrom(objRef.centerPosition);
-        tempConnectNodes.source.size.copyFrom(objRef.size);
-        tempConnectNodes.source.position.copyFrom(objRef.position);
-
-        //tempConnectNodes.target.size.div(this.props.scale);
-
-        //set connectNodes target variables except size
-        tempConnectNodes.target.position.x = event.clientX;
-        tempConnectNodes.target.position.y = event.clientY;
-        //calculate center
-        updateCenterPosition(tempConnectNodes.target);
+        sourceClone.copyFrom(this.getMouseTouchPosition(event));
 
         window.addEventListener("mouseup", this.__stopDynamicLink);
         window.addEventListener("mousemove", this.__onMouseMoveDynamicLink);
@@ -120,19 +105,10 @@ var Node = React.createClass({
   __onMouseMoveDynamicLink: function (event) {
     tempConnectNodes = this.props.connectNodes;
 
-    //set connectNodes target variables except size
-    tempConnectNodes.target.position.x = event.clientX;
-    tempConnectNodes.target.position.y = event.clientY;
-
-    console.log(this.props.scale);
-
-    // tempConnectNodes.target.position.x -= tempConnectNodes.target.size.x / 2;
-    // tempConnectNodes.target.position.y -= tempConnectNodes.target.size.y / 2;
-
-    //tempConnectNodes.target.position.div(this.props.scale);
-
-    //calculate center
-    updateCenterPosition(tempConnectNodes.target);
+    //we need to override both source and target every time. because
+    //at scene section we are applying the transformation.
+    tempConnectNodes.source.position.copyFrom(sourceClone);
+    tempConnectNodes.target.position.copyFrom(this.getMouseTouchPosition(event));
 
     this.update();
   },
