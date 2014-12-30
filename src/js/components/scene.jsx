@@ -200,6 +200,33 @@ var Scene = React.createClass({
 
     keybind.trigger(keybind.constant.Default);
   },
+  __loadAsFile: function (event) {
+    event.preventDefault();
+
+    var file = event.dataTransfer.files[0],
+        reader = new FileReader();
+
+    reader.onload = function(e) {
+      var content = e.target.result,
+          obj = JSON.parse(content);
+
+      //configure global camera panning and scale
+      this.state.position.x = obj.meta.position.x;
+      this.state.position.y = obj.meta.position.y;
+      this.state.scale = obj.meta.scale;
+
+      //load all the nodes and links
+      this.state.source = processData(obj);
+
+      //request for redraw
+      this.update();
+    }.bind(this);
+
+    reader.readAsText(file);
+  },
+  __ignore: function (event) {
+    event.preventDefault();
+  },
   getInitialState: function () {
     return {
       scale: 1.0,
@@ -255,6 +282,7 @@ var Scene = React.createClass({
       data: null
     });
   },
+
   render: function () {
     var nodeObj,
         nodes,
@@ -307,7 +335,10 @@ var Scene = React.createClass({
     }
 
     return (
-      <svg onMouseDown={this.startDragging}>
+      <svg onMouseDown={this.startDragging}
+           onDragOver={this.__ignore}
+           onDragEnter={this.__ignore}
+           onDrop={this.__loadAsFile}>
         <g transform={transform}>{dynamicLine}</g>
         <g transform={transform}>{nodes}</g>
         <g transform={transform}>{links}</g>
