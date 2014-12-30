@@ -35,7 +35,7 @@ var React               = require("react"),
     transformMatrix     = [0, 0, 0, 0, 0, 0],
     transform           = "",
 
-    dynamicLineId       = "link:" + generator.genId(),
+    dynamicLineId       = generator.genLinkId(),
     dynamicLine;
 
 React.initializeTouchEvents(true);
@@ -155,7 +155,7 @@ var Scene = React.createClass({
     )//end of source
   },
   __addNewNode: function () {
-    var tempId = "node:" + generator.genId();
+    var tempId = generator.genNodeId();
 
     this.state.source.nodes[tempId] = {
       id: tempId,
@@ -182,7 +182,19 @@ var Scene = React.createClass({
   __saveAsFile: function (event) {
     event.preventDefault();
 
-    var contentAsString = JSON.stringify(objectToJSON(this.state.source));
+    var state = this.state,
+        obj = objectToJSON(state.source),
+        contentAsString;
+
+    obj.meta = {
+      scale: state.scale,
+      position: {
+        x: state.position.x,
+        y: state.position.y
+      }
+    };
+
+    contentAsString = JSON.stringify(obj);
 
     file.saveAs("ali.json", contentAsString, "text/json");
 
@@ -234,7 +246,7 @@ var Scene = React.createClass({
         connectNodes  = state.connectNodes,
         links         = state.source.links,
 
-        linkId        = generator.genId();
+        linkId        = generator.genLinkId();
 
     links.push({
       id: linkId,
