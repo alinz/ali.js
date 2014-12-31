@@ -203,21 +203,19 @@ var Scene = React.createClass({
   __saveInLocalStorage: function() {
     window.setTimeout(function() {
       localStorage.alijs = this.__toJSON();
-    }, 0);
+    }.bind(this), 0);
   },
-  __loadFromJSON: function (json) {
-    var obj = JSON.parse(json);
+  __loadFromJSON: function (json, maybeState) {
+    var obj = JSON.parse(json),
+      state = maybeState || this.state;
 
     //configure global camera panning and scale
-    this.state.position.x = obj.meta.position.x;
-    this.state.position.y = obj.meta.position.y;
-    this.state.scale = obj.meta.scale;
+    state.position.x = obj.meta.position.x;
+    state.position.y = obj.meta.position.y;
+    state.scale = obj.meta.scale;
 
     //load all the nodes and links
-    this.state.source = processData(obj);
-
-    //request for redraw
-    this.update();
+    state.source = processData(obj);
   },
   __loadAsFile: function (event) {
     event.preventDefault();
@@ -228,20 +226,22 @@ var Scene = React.createClass({
     reader.onload = function(e) {
       var content = e.target.result;
       this.__loadFromJSON(content);
+      //request for redraw
+      this.update();
     }.bind(this);
 
     reader.readAsText(file);
   },
-  __tryToLoadFromLocalStorage: function() {
+  __tryToLoadFromLocalStorage: function(maybeState) {
     if (localStorage.alijs) {
-      this.__loadFromJSON(localStorage.alijs);
+      this.__loadFromJSON(localStorage.alijs, maybeState);
     }
   },
   __ignore: function (event) {
     event.preventDefault();
   },
   getInitialState: function () {
-    return {
+    var state = {
       scale: 1.0,
       position: new Vector2D(),
       source: null,
@@ -257,9 +257,13 @@ var Scene = React.createClass({
       },
       renderTrigger: 0
     };
+    this.__tryToLoadFromLocalStorage(state);
+    return state;
   },
   componentWillMount: function () {
-    this.state.source = processData(this.props.source);
+    if (!this.state.source){
+      this.state.source = processData(this.props.source);
+    }
   },
   componentWillReceiveProps: function (nextProps) {
     this.state.source = processData(this.props.source);
@@ -267,7 +271,6 @@ var Scene = React.createClass({
   componentDidMount: function () {
     this.startZoom();
     this.initDragging();
-    this.__tryToLoadFromLocalStorage();
 
     keybind.bind(keybind.constant.AddNode, this.__addNewNode);
     keybind.bind(keybind.constant.AddLink, this.__addNewLink);
