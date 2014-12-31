@@ -201,7 +201,9 @@ var Scene = React.createClass({
     keybind.trigger(keybind.constant.Default);
   },
   __saveInLocalStorage: function() {
-    localStorage.alijs = this.__toJSON();
+    window.setTimeout(function() {
+      localStorage.alijs = this.__toJSON();
+    }, 0);
   },
   __loadFromJSON: function (json) {
     var obj = JSON.parse(json);
