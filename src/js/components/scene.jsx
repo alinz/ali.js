@@ -179,12 +179,9 @@ var Scene = React.createClass({
     this.enableDragging(false);
     cursor.set(cursorClasses.Pointer);
   },
-  __saveAsFile: function (event) {
-    event.preventDefault();
-
+  __toJSON: function() {
     var state = this.state,
-        obj = objectToJSON(state.source),
-        contentAsString;
+        obj = objectToJSON(state.source);
 
     obj.meta = {
       scale: state.scale,
@@ -194,11 +191,31 @@ var Scene = React.createClass({
       }
     };
 
-    contentAsString = JSON.stringify(obj);
-
-    file.saveAs("ali.json", contentAsString, "text/json");
-
+    return JSON.stringify(obj);
+  },
+  __saveAsFile: function (event) {
+    event.preventDefault();
+    
+    file.saveAs("ali.json", this.__toJSON(), "text/json");
+    
     keybind.trigger(keybind.constant.Default);
+  },
+  __saveInLocalStorage: function() {
+    localStorage.alijs = this.__toJSON();
+  },
+  __loadFromJSON: function (json) {
+    var obj = JSON.parse(json);
+
+    //configure global camera panning and scale
+    this.state.position.x = obj.meta.position.x;
+    this.state.position.y = obj.meta.position.y;
+    this.state.scale = obj.meta.scale;
+
+    //load all the nodes and links
+    this.state.source = processData(obj);
+
+    //request for redraw
+    this.update();
   },
   __loadAsFile: function (event) {
     event.preventDefault();
@@ -207,22 +224,16 @@ var Scene = React.createClass({
         reader = new FileReader();
 
     reader.onload = function(e) {
-      var content = e.target.result,
-          obj = JSON.parse(content);
-
-      //configure global camera panning and scale
-      this.state.position.x = obj.meta.position.x;
-      this.state.position.y = obj.meta.position.y;
-      this.state.scale = obj.meta.scale;
-
-      //load all the nodes and links
-      this.state.source = processData(obj);
-
-      //request for redraw
-      this.update();
+      var content = e.target.result;
+      this.__loadFromJSON(content);
     }.bind(this);
 
     reader.readAsText(file);
+  },
+  __tryToLoadFromLocalStorage: function() {
+    if (localStorage.alijs) {
+      this.__loadFromJSON(localStorage.alijs);
+    }
   },
   __ignore: function (event) {
     event.preventDefault();
@@ -254,6 +265,7 @@ var Scene = React.createClass({
   componentDidMount: function () {
     this.startZoom();
     this.initDragging();
+    this.__tryToLoadFromLocalStorage();
 
     keybind.bind(keybind.constant.AddNode, this.__addNewNode);
     keybind.bind(keybind.constant.AddLink, this.__addNewLink);
@@ -264,6 +276,7 @@ var Scene = React.createClass({
     this.stopZoom();
   },
   update: function () {
+    this.__saveInLocalStorage();
     this.setStateAnimationFrame({
       renderTrigger: this.state.renderTrigger++
     });
