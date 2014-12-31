@@ -195,15 +195,21 @@ var Scene = React.createClass({
   },
   __saveAsFile: function (event) {
     event.preventDefault();
-    
+
     file.saveAs("ali.json", this.__toJSON(), "text/json");
-    
+
     keybind.trigger(keybind.constant.Default);
   },
   __saveInLocalStorage: function() {
-    window.setTimeout(function() {
-      localStorage.alijs = this.__toJSON();
-    }.bind(this), 0);
+    var state = this.state;
+    if (state.timeoutHandler) {
+      window.clearTimeout(state.timeoutHandler);
+    }
+    if (localStorage) {
+      state.timeoutHandler = window.setTimeout(function() {
+        localStorage.alijs = this.__toJSON();
+      }.bind(this), 300);
+    }
   },
   __loadFromJSON: function (json, maybeState) {
     var obj = JSON.parse(json),
@@ -242,6 +248,8 @@ var Scene = React.createClass({
   },
   getInitialState: function () {
     var state = {
+      //this variable will be used to keep track of timeout
+      timeoutHandler: 0,
       scale: 1.0,
       position: new Vector2D(),
       source: null,
