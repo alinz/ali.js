@@ -20,6 +20,6 @@
 
   "dependencies": {
     "react": "0.12.1",
-    "mousetrap": "1.4.6"
+    "mousetrap": "git://github.com/alinz/mousetrap.git#master"
   }
 }
