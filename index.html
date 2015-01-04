@@ -9,5 +9,30 @@
 <body>
   <div id="content" class="container"></div>
   <script src="dist/js/main.js"></script>
+
+  <script>
+    var myScene = Ali.create();
+    var nodes = [
+      {
+        name: "RabbitMQ",
+        meta: {
+          icon: "dist/img/rabbitmq-600x600.png"
+        },
+        attributes: {}
+      }
+    ];
+
+    var links = [
+      {
+        name: "link1",
+        meta: {},
+        attributes: {}
+      }
+    ];
+
+    myScene.defineNodes(nodes)
+           .defineLinks(links)
+           .attach(document.getElementById("content"));
+  </script>
 </body>
 </html>
