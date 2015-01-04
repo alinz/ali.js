@@ -1,23 +1,21 @@
 {
   "name": "alijs",
   "version": "0.0.1",
-  "description": "a node base tool",
-
+  "description": "A node based tool",
   "devDependencies": {
-    "gulp": "3.8.10",
-    "del": "1.1.0",
-    "gulp-rename": "1.2.0",
-    "node-notifier": "4.0.3",
-    "gulp-util": "3.0.1",
-    "browserify": "7.0.2",
-    "watchify": "2.2.1",
-    "vinyl-source-stream": "1.0.0",
-    "reactify": "0.17.1",
-    "gulp-uglify": "1.0.2",
     "browser-sync": "1.8.0",
-    "gulp-less": "2.0.1"
+    "browserify": "7.0.2",
+    "del": "1.1.0",
+    "gulp": "^3.8.10",
+    "gulp-less": "2.0.1",
+    "gulp-rename": "1.2.0",
+    "gulp-uglify": "1.0.2",
+    "gulp-util": "3.0.1",
+    "node-notifier": "4.0.3",
+    "reactify": "0.17.1",
+    "vinyl-source-stream": "1.0.0",
+    "watchify": "2.2.1"
   },
-
   "dependencies": {
     "react": "0.12.1",
     "mousetrap": "git://github.com/alinz/mousetrap.git#master"
