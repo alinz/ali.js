@@ -10,10 +10,6 @@
 "use strict";
 
 var Vector2D          = require("./../util/math/vector2d.js"),
-    cursor            = require("./../util/cursor.js"),
-
-    //const cursor classes enum
-    cursorClasses     = cursor.classes,
 
     //globals
     draggableStarted  = false,
@@ -30,7 +26,7 @@ var Vector2D          = require("./../util/math/vector2d.js"),
 
 module.exports = {
   initDragging: function () {
-    cursor.set(cursorClasses.OpenHand);
+    this.setCursor("ali-cursor-default");
   },
   enableDragging: function (value) {
     isDraggingEnabled = !!value;
@@ -38,7 +34,7 @@ module.exports = {
   startDragging: function (event) {
     if (!isDraggingEnabled) { return; }
 
-    cursor.set(cursorClasses.ClosedHand);
+    this.setCursor("ali-cursor-panning");
 
     draggingStart.copyFrom(this.getMouseTouchPosition(event));
 
@@ -54,7 +50,7 @@ module.exports = {
 
     if (!isDragging) return;
 
-    cursor.set(cursorClasses.ClosedHand);
+    this.setCursor("ali-cursor-panning");
 
     //these two variables are set in a such a way that if the object is scene
     //if the object is a scene object, both global and internal will point to
@@ -87,7 +83,7 @@ module.exports = {
   __stopDragging: function (event) {
     if (!isDraggingEnabled) { return; }
 
-    cursor.set(cursorClasses.OpenHand);
+    this.setCursor("ali-cursor-default");
 
     event.stopPropagation();
 

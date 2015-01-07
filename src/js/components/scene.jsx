@@ -15,7 +15,6 @@ var React               = require("react/addons"),
     Vector2D            = require("./../util/math/vector2d.js"),
     keybind             = require("./../util/keybind.js"),
     generator           = require("./../util/generator.js"),
-    cursor              = require("./../util/cursor.js"),
     file                = require("./../util/file.js"),
 
     //mixins
@@ -32,7 +31,6 @@ var React               = require("react/addons"),
 
     //global variables
     classSet            = React.addons.classSet,
-    cursorClasses       = cursor.classes,
     transformMatrix     = [0, 0, 0, 0, 0, 0],
     transform           = "",
 
@@ -171,14 +169,17 @@ var Scene = React.createClass({
   },
   //this method called when the default key is being pressed.
   //default key by default is Esc key which resets all the states to origianl
-  __defaultSetting: function () {
+  modeDefault: function () {
     this.enableDragging(true);
-    cursor.set(cursorClasses.OpenHand);
+    this.setCursor("ali-cursor-default");
   },
-  __addNewLink: function () {
+  modeNode: function () {
     //we need to disable the dragging and panning.
     this.enableDragging(false);
-    cursor.set(cursorClasses.Pointer);
+    this.setCursor("ali-cursor-node");
+  },
+  modeLink: function () {
+    this.setCursor("ali-cursor-link");
   },
   toJSON: function() {
     var state = this.state,
@@ -241,8 +242,6 @@ var Scene = React.createClass({
     this.initDragging();
 
     keybind.bind(keybind.constant.AddNode, this.__addNewNode);
-    keybind.bind(keybind.constant.AddLink, this.__addNewLink);
-    keybind.bind(keybind.constant.Default, this.__defaultSetting);
   },
   setCursor: function (className) {
     this.state.cursorClassName = className;

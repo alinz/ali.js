@@ -25,7 +25,9 @@ Scene.prototype.mode = function (mode) {
   if (mode) {
     this.mode = mode;
     return this;
-  } else {}
+  } else {
+    return this.mode;
+  }
 };
 
 Scene.prototype.setCursor = function (className) {
@@ -36,7 +38,7 @@ Scene.prototype.setMode = function (mode) {
   this.mode = mode;
 };
 
-Scene.prototype.setNodeType - function (nodeType) {
+Scene.prototype.setNodeType = function (nodeType) {
 
 };
 
@@ -91,10 +93,6 @@ Scene.prototype.export = function () {
 //##############################################################################
 //# optional override mthods
 //##############################################################################
-
-Scene.prototype.sceneDidChangeMode = function () {
-
-};
 
 Scene.prototype.sceneWillCreateNode = function (node, proceed, stop) {
   proceed();
