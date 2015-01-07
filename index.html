@@ -11,28 +11,46 @@
   <script src="dist/js/main.js"></script>
 
   <script>
-    var myScene = Ali.create();
-    var nodes = [
-      {
-        name: "RabbitMQ",
-        meta: {
-          icon: "dist/img/rabbitmq-600x600.png"
+    var Scene = Ali.createScene({
+        getNodesDefinition: function () {
+          return [
+            {
+              name: "RabbitMQ",
+              meta: {
+                icon: "dist/img/rabbitmq-600x600.png"
+              },
+              attributes: {
+                label: "RabbitMQ",
+                position: [0, 0],
+                size: [100, 100]
+              }
+            }
+          ];
         },
-        attributes: {}
-      }
-    ];
+        getLinksDefinition: function () {
+          return [
+            {
+              name: "link1",
+              meta: {},
+              attributes: {}
+            }
+          ];
+        },
+        sceneWillCreateNode: function (node, proceed, stop) {
+          proceed();
+        },
+        sceneDidCreatedNode: function (node) {
 
-    var links = [
-      {
-        name: "link1",
-        meta: {},
-        attributes: {}
-      }
-    ];
+        },
+        sceneWillConnectNodes: function (nodeA, nodeB, link, proceed, stop) {
+          proceed();
+        },
+        sceneDidConnectNodes: function (nodeA, nodeB, link) {
 
-    myScene.defineNodes(nodes)
-           .defineLinks(links)
-           .attach(document.getElementById("content"));
+        }
+    });
+
+    Ali.attach(Scene, document.getElementById("content"));
   </script>
 </body>
 </html>

@@ -9,7 +9,7 @@
 
 "use strict";
 
-var React               = require("react"),
+var React               = require("react/addons"),
 
     //utils
     Vector2D            = require("./../util/math/vector2d.js"),
@@ -31,6 +31,7 @@ var React               = require("react"),
     Line                = require("./line.jsx"),
 
     //global variables
+    classSet            = React.addons.classSet,
     cursorClasses       = cursor.classes,
     transformMatrix     = [0, 0, 0, 0, 0, 0],
     transform           = "",
@@ -179,7 +180,7 @@ var Scene = React.createClass({
     this.enableDragging(false);
     cursor.set(cursorClasses.Pointer);
   },
-  __toJSON: function() {
+  toJSON: function() {
     var state = this.state,
         obj = objectToJSON(state.source);
 
@@ -193,27 +194,9 @@ var Scene = React.createClass({
 
     return JSON.stringify(obj);
   },
-  __saveAsFile: function (event) {
-    event.preventDefault();
-
-    file.saveAs("ali.json", this.__toJSON(), "text/json");
-
-    keybind.trigger(keybind.constant.Default);
-  },
-  __saveInLocalStorage: function() {
-    var state = this.state;
-    if (state.timeoutHandler) {
-      window.clearTimeout(state.timeoutHandler);
-    }
-    if (localStorage) {
-      state.timeoutHandler = window.setTimeout(function() {
-        localStorage.alijs = this.__toJSON();
-      }.bind(this), 300);
-    }
-  },
-  __loadFromJSON: function (json, maybeState) {
+  fromJSON: function (json) {
     var obj = JSON.parse(json),
-      state = maybeState || this.state;
+      state = this.state;
 
     //configure global camera panning and scale
     state.position.x = obj.meta.position.x;
@@ -223,33 +206,11 @@ var Scene = React.createClass({
     //load all the nodes and links
     state.source = processData(obj);
   },
-  __loadAsFile: function (event) {
-    event.preventDefault();
-
-    var file = event.dataTransfer.files[0],
-        reader = new FileReader();
-
-    reader.onload = function(e) {
-      var content = e.target.result;
-      this.__loadFromJSON(content);
-      //request for redraw
-      this.update();
-    }.bind(this);
-
-    reader.readAsText(file);
-  },
-  __tryToLoadFromLocalStorage: function(maybeState) {
-    if (localStorage.alijs) {
-      this.__loadFromJSON(localStorage.alijs, maybeState);
-    }
-  },
-  __ignore: function (event) {
-    event.preventDefault();
-  },
   getInitialState: function () {
     var state = {
       //this variable will be used to keep track of timeout
       timeoutHandler: 0,
+      cursorClassName: "",
       scale: 1.0,
       position: new Vector2D(),
       source: null,
@@ -265,16 +226,15 @@ var Scene = React.createClass({
       },
       renderTrigger: 0
     };
-    this.__tryToLoadFromLocalStorage(state);
     return state;
   },
   componentWillMount: function () {
     if (!this.state.source){
-      this.state.source = processData(this.props.source);
+      this.state.source = processData(this.props.data);
     }
   },
   componentWillReceiveProps: function (nextProps) {
-    this.state.source = processData(this.props.source);
+    this.state.source = processData(this.props.data);
   },
   componentDidMount: function () {
     this.startZoom();
@@ -283,13 +243,15 @@ var Scene = React.createClass({
     keybind.bind(keybind.constant.AddNode, this.__addNewNode);
     keybind.bind(keybind.constant.AddLink, this.__addNewLink);
     keybind.bind(keybind.constant.Default, this.__defaultSetting);
-    keybind.bind(keybind.constant.Save, this.__saveAsFile);
+  },
+  setCursor: function (className) {
+    this.state.cursorClassName = className;
+    this.update();
   },
   componentWillUnmount: function () {
     this.stopZoom();
   },
   update: function () {
-    this.__saveInLocalStorage();
     this.setStateAnimationFrame({
       renderTrigger: this.state.renderTrigger++
     });
@@ -308,13 +270,17 @@ var Scene = React.createClass({
       data: null
     });
   },
-
   render: function () {
     var nodeObj,
         nodes,
         dynamicLink,
         links = [],
-        state = this.state;
+        state = this.state,
+        classNamesObj = {},
+        classNames = "";
+
+    classNamesObj[this.state.cursorClassName] = true;
+    classNames = classSet(classNamesObj);
 
     nodes = Object.keys(state.source.nodes).map(function (nodeId) {
       nodeObj = state.source.nodes[nodeId];
@@ -361,10 +327,7 @@ var Scene = React.createClass({
     }
 
     return (
-      <svg onMouseDown={this.startDragging}
-           onDragOver={this.__ignore}
-           onDragEnter={this.__ignore}
-           onDrop={this.__loadAsFile}>
+      <svg className={classNames} onMouseDown={this.startDragging}>
         <g transform={transform}>{dynamicLine}</g>
         <g transform={transform}>{nodes}</g>
         <g transform={transform}>{links}</g>
