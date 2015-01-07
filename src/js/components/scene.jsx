@@ -240,8 +240,6 @@ var Scene = React.createClass({
   componentDidMount: function () {
     this.startZoom();
     this.initDragging();
-
-    keybind.bind(keybind.constant.AddNode, this.__addNewNode);
   },
   setCursor: function (className) {
     this.state.cursorClassName = className;
