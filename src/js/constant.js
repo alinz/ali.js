@@ -9,10 +9,27 @@
 
 "use strict";
 
+var genId   = require("./util/generator.js").genId,
+
+    //global variables
+    state   = {};
+
 module.exports = {
+  get: function (key) {
+    return "undefined" !== typeof key? state[key] : state;
+  },
+
+  set: function (key, value) {
+    currentState[key] = value;
+  },
+
+  Key: {
+    Mode:             genId(), 
+  },
+
   Mode: {
-    Default:          0,
-    Node:             1,
-    Link:             2
+    Default:          genId(),
+    Node:             genId(),
+    Link:             genId()
   }
 };
