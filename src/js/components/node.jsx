@@ -17,7 +17,7 @@ var React           = require("react"),
 
     //util
     Vector2D        = require("./../util/math/vector2d.js"),
-    keybind         = require("./../util/keybind.js"),
+    Constant        = require("./../constant.js"),
 
     //mixins
     DraggableMixin  = require("./../mixins/draggable.js"),
@@ -77,11 +77,11 @@ var Node = React.createClass({
     return true;
   },
   __onMouseDown: function (event) {
-    switch (keybind.getCurrentState()) {
-      case keybind.constant.Default:
+    switch (Constant.get(Constant.Key.Mode)) {
+      case Constant.Mode.Default:
         this.startDragging(event);
         break;
-      case keybind.constant.AddLink:
+      case Constant.Mode.Link:
         tempConnectNodes = this.props.connectNodes;
         objRef = this.props.objRef;
 
@@ -147,8 +147,8 @@ var Node = React.createClass({
   __onMouseUp: function () {
     objRef = this.props.objRef;
 
-    switch (keybind.getCurrentState()) {
-      case keybind.constant.AddLink:
+    switch (Constant.get(Constant.Key.Mode)) {
+      case Constant.Mode.Link:
         tempConnectNodes = this.props.connectNodes;
         tempConnectNodes.target.id = objRef.id;
 
