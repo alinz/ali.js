@@ -13,9 +13,7 @@ var React               = require("react/addons"),
 
     //utils
     Vector2D            = require("./../util/math/vector2d.js"),
-    keybind             = require("./../util/keybind.js"),
     generator           = require("./../util/generator.js"),
-    file                = require("./../util/file.js"),
 
     //mixins
     AnimationFrameMixin = require("./../mixins/animation-frame.js"),
@@ -161,9 +159,6 @@ var Scene = React.createClass({
       data: null,
       position: new Vector2D()
     };
-
-    //we set the key back to default.
-    keybind.trigger(keybind.constant.Default);
 
     this.update();
   },

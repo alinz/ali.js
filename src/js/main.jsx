@@ -29,6 +29,7 @@ var React                     = require("react"),
     shouldMethodsToOverride   = [ "getNodesDefinition",
                                   "getLinksDefinition" ],
     illegalMethodsToOverride  = [ "mode",
+                                  "camera",
                                   "import",
                                   "export",
                                   "setCursor" ];

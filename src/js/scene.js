@@ -9,12 +9,25 @@
 
 "use strict";
 
-var Mode = require("./constant.js").Mode;
+var Mode = require("./constant.js").Mode,
+    Node = require("./node.js"),
+    Link = require("./link.js");
 
 function Scene() {
   this.renderedSceneObj = null;
   this.data = { nodes: [], links: [] };
   this.mode = Mode.Default;
+
+  this.nodes = this.getNodesDefinition().map(function (nodeImpl) {
+    return Node.extend(nodeImpl);
+  });
+  
+  this.links = this.getLinksDefinition().map(function (linkImpl) {
+    return Link.extend(linkImpl);
+  });
+
+  console.log(this.nodes);
+  console.log(this.links);
 }
 
 //##############################################################################
@@ -43,6 +56,10 @@ Scene.prototype.setNodeType = function (nodeType) {
 };
 
 Scene.prototype.setLinkType = function (linkType) {
+
+};
+
+Scene.prototype.camera = function (x, y, z) {
 
 };
 
