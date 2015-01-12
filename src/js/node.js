@@ -14,7 +14,15 @@ var Extend = require("./util/extend.js");
 function Node() { }
 
 Node.extend = function (extendNode) {
-  return Extend(Node, extendNode.attributes || {}, extendNode.meta || {});
+  var attributes = extendNode.attributes || {};
+
+  delete extendNode.attributes;
+
+  //we are deleting this property because it tries to set function.name property
+  //which causes javascript to throw an exception.
+  delete extendNode.name;
+
+  return Extend(Node, attributes, extendNode);
 };
 
 module.exports = Node;

@@ -33,4 +33,9 @@ module.exports = function (funcClass, ObjectAttributes, ClassAttributes) {
 
     return true;
   });
+
+  //attach Class Attributes
+  Merge.object(ExtendClass, ClassAttributes);
+
+  return ExtendClass;
 };

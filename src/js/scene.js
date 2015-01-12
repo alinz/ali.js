@@ -9,25 +9,28 @@
 
 "use strict";
 
-var Mode = require("./constant.js").Mode,
-    Node = require("./node.js"),
-    Link = require("./link.js");
+var Constant  = require("./constant.js"),
+    NodeClass = require("./node.js"),
+    LinkClass = require("./link.js");
 
 function Scene() {
   this.renderedSceneObj = null;
   this.data = { nodes: [], links: [] };
-  this.mode = Mode.Default;
+  this.mode = Constant.Mode_Default;
 
-  this.nodes = this.getNodesDefinition().map(function (nodeImpl) {
-    return Node.extend(nodeImpl);
-  });
-  
-  this.links = this.getLinksDefinition().map(function (linkImpl) {
-    return Link.extend(linkImpl);
-  });
+  this.nodeClassesMap = {};
+  this.linkClassesMap = {};
 
-  console.log(this.nodes);
-  console.log(this.links);
+  //the following two loops go through all item in classes and assign each
+  //class to a map. Everytime an object is requested these map will be used
+  //to create a proper object.
+  this.getNodesDefinition().forEach(function (nodeImpl) {
+    this.nodeClassesMap[nodeImpl.type] = NodeClass.extend(nodeImpl);
+  }.bind(this));
+
+  this.getLinksDefinition().forEach(function (linkImpl) {
+    this.linkClassesMap[linkImpl.type] = LinkClass.extend(linkImpl);
+  }.bind(this));
 }
 
 //##############################################################################
@@ -59,27 +62,27 @@ Scene.prototype.setLinkType = function (linkType) {
 
 };
 
-Scene.prototype.camera = function (x, y, z) {
-
-};
 
 /*
   imports data that represents scene data
 
   data consits of 3 major fields
   1: meta <Object>
-    { position: [], scale: 0 }
+    {
+      position: [0, 0],
+      scale: 0
+    },
 
   2: nodes <Array>
     [
       {
-        id: "node:1",
         type: "RabbitMQ",
 
         attributes: {
+          id:       "node:1",
           position: [0, 0],
-          size: [0, 0],
-          label: "LABEL"
+          size:     [0, 0],
+          label:    "LABEL"
         }
       },
       ...
@@ -87,10 +90,10 @@ Scene.prototype.camera = function (x, y, z) {
   3: links <Array>
     [
       {
-        id: "link:10",
         type: "TCP",
 
         attributes: {
+          id:     "link:10",
           source: "node:1",
           target: "node:5"
         }
@@ -115,12 +118,13 @@ Scene.prototype.sceneWillCreateNode = function (node, proceed, stop) {
   proceed();
 };
 
-Scene.prototype.sceneDidCreateNode = function (node) {};
-
 Scene.prototype.sceneWillConnectNodes = function (nodeA, nodeB, link, proceed, stop) {
   proceed();
 };
 
-Scene.prototype.sceneDidConnectNodes = function (nodeA, nodeB, link) {};
+Scene.prototype.sceneDidCreateNode = function (node) {};
+Scene.prototype.sceneDidConnectNodes = function (nodeA, nodeB, link) { };
+Scene.prototype.sceneDidRequestNodeInfo = function (node) { };
+Scene.prototype.sceneDidRequestLinkInfo = function (link) { };
 
 module.exports = Scene;

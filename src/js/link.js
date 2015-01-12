@@ -14,10 +14,14 @@ var Extend = require("./util/extend.js");
 function Link() { }
 
 Link.extend = function (extendLink) {
-  var meta = extendLink.meta || {},
-      attributes = extendLink.attributes || {};
+  var attributes = extendLink.attributes || {};
+  delete extendLink.attributes;
 
-  return Extend(Link, attributes, meta);
+  //we are deleting this property because it tries to set function.name property
+  //which causes javascript to throw an exception.
+  delete extendLink.name;
+
+  return Extend(Link, attributes, extendLink);
 };
 
 module.exports = Link;
