@@ -15,7 +15,14 @@ var Constant  = require("./constant.js"),
 
 function Scene() {
   this.renderedSceneObj = null;
-  this.data = { nodes: [], links: [] };
+  this.data = {
+    meta:{
+      position: [0, 0],
+      scale: 1.0
+    },
+    nodes: [],
+    links: []
+  };
   this.mode = Constant.Mode_Default;
 
   this.nodeClassesMap = {};
