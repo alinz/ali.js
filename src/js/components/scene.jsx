@@ -109,8 +109,8 @@ var Scene = React.createClass({
     data = "string" === typeof data? JSON.parse(data) : data;
 
     //configure global camera panning and scale
-    state.position.x = data.meta.position.x;
-    state.position.y = data.meta.position.y;
+    state.position.x = data.meta.position[0];
+    state.position.y = data.meta.position[1];
     state.scale = data.meta.scale;
 
     //these are temporary variables which only use internally
@@ -144,7 +144,7 @@ var Scene = React.createClass({
   getInitialState: function () {
     var state = {
       scale: 1.0,
-      position: new Vector2D(),
+      position: new Vector2D(0, 0),
       renderTrigger: 0,
 
       connectNodes: {
@@ -155,10 +155,11 @@ var Scene = React.createClass({
     };
     return state;
   },
+  componentWillReceiveProps: function (props) {
+    this.fromJSON(props.data);
+  },
   componentWillMount: function () {
-    if (!this.state.data){
-      this.state.data = processData(this.props.data);
-    }
+    this.fromJSON(this.props.data);
   },
   componentDidMount: function () {
     this.startZoom();
@@ -188,7 +189,7 @@ var Scene = React.createClass({
   },
   render: function () {
     var nodeObj,
-        nodes,
+        nodes = [],
         dynamicLink,
         links = [],
         state = this.state,
@@ -197,12 +198,10 @@ var Scene = React.createClass({
 
     classNames = classSet(classNamesObj);
 
-    nodes = Object.keys(state.data.nodes).map(function (nodeId) {
-      nodeObj = state.data.nodes[nodeId];
-
-      return <Node key={nodeObj.id}
+    state.data.nodes.forEach(function (node) {
+      return <Node key={node.id}
                    scale={state.scale}
-                   objRef={nodeObj}
+                   objRef={node}
                    label={"node.label"}
                    shouldNodeConnect={this.shouldNodeConnect}
                    update={this.update}
