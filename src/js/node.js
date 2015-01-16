@@ -9,12 +9,21 @@
 
 "use strict";
 
-var Extend = require("./util/extend.js"),
-    Vector2D = require("./util/math/vector2d.js");
+var generator   = require("./util/generator.js"),
+
+    //utilities
+    Extend      = require("./util/extend.js"),
+
+    //math
+    Vector2D    = require("./util/math/vector2d.js");
 
 function Node() {
-  this.position = new Vector2D();
-  this.size = new Vector2D(100, 100);
+  //id will be overrided once we loaded the object from JSON
+  this.id             = generator.genNodeId();
+  
+  this.position       = new Vector2D();
+  this.size           = new Vector2D(100, 100);
+  this.centerPosition = new Vector2D();
 }
 
 Node.extend = function (extendNode) {

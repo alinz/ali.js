@@ -114,7 +114,9 @@ Scene.prototype.createNode = function (position) {
   node.size.div(0.5);
 
   this.sceneWillCreateNode(node, function () {
+
     
+
   }.bind(this), function () {
 
   }.bind(this));

@@ -40,6 +40,21 @@ function updateCenterPosition(obj) {
   obj.centerPosition.y = obj.position.y + obj.size.y / 2;
 }
 
+/*
+  This node receives the follwoing properties from Scene Render Object
+  node: it is an object of node which contains
+        {label, size and position}
+        all the updates must be happening with this object.
+
+  update: it is a function which triggers scene render update.
+  shouldNodeConnect: this is a function which will be called once 2 nodes are
+                     connected. The decision will be made based on Scene Impl.
+
+  connectNodes: is an object contains source and target which is updated by
+                node to be sent to Scene object to see whether these node
+                can be connected.
+
+ */
 var Node = React.createClass({
   mixins: [
     DraggableMixin,
@@ -78,7 +93,7 @@ var Node = React.createClass({
   },
   __onMouseDown: function (event) {
     switch (Constant.get(Constant.Key.Mode)) {
-      case Constant.Mode.Default:
+      case Constant.Mode_Default:
         this.startDragging(event);
         break;
       case Constant.Mode.Link:
