@@ -156,14 +156,18 @@ var Scene = React.createClass({
     return state;
   },
   componentWillReceiveProps: function (props) {
+    this.sceneObj = props.scene;
     this.fromJSON(props.data);
   },
   componentWillMount: function () {
+    this.sceneObj = this.props.scene;
     this.fromJSON(this.props.data);
   },
   componentDidMount: function () {
     this.startZoom();
     this.initDragging();
+
+    this.sceneObj.sceneDidReady();
   },
   componentWillUnmount: function () {
     this.stopZoom();

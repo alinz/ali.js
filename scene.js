@@ -7,6 +7,9 @@ Ali.attach(Ali.createScene({
   getLinksDefinition: function () {
     return linkTypes;
   },
+  sceneDidReady: function () {
+    console.log("Scene is Ready");
+  },
   sceneWillCreateNode: function (node, proceed, stop) {
     proceed();
   },

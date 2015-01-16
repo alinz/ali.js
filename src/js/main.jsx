@@ -74,7 +74,7 @@ Ali.attach = function (SceneExtendedClass, domElement) {
 
   sceneObj = new SceneExtendedClass();
   sceneObj.renderedSceneObj = React.render(
-    <SceneReact data={sceneObj.data}/>,
+    <SceneReact data={sceneObj.data} scene={sceneObj}/>,
     domElement
   );
 };

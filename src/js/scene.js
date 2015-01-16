@@ -120,7 +120,7 @@ Scene.prototype.export = function () {
 //##############################################################################
 //# optional override mthods
 //##############################################################################
-
+Scene.prototype.sceneDidReady = function () { };
 Scene.prototype.sceneWillCreateNode = function (node, proceed, stop) {
   proceed();
 };
