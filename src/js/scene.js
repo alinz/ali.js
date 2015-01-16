@@ -25,6 +25,9 @@ function Scene() {
   };
   this.mode = Constant.Mode_Default;
 
+  this.nodeType = "";
+  this.linkType = "";
+
   this.nodeClassesMap = {};
   this.linkClassesMap = {};
 
@@ -53,22 +56,57 @@ Scene.prototype.mode = function (mode) {
   }
 };
 
-Scene.prototype.setCursor = function (className) {
-  this.renderedSceneObj.setCursor(className);
-};
-
 Scene.prototype.setMode = function (mode) {
+  switch (mode) {
+    case Constant.Mode_Default:
+      this.renderedSceneObj.modeDefault();
+      break;
+    case Constant.Mode_Node:
+      this.renderedSceneObj.modeNode();
+      break;
+    case Constant.Mode_Link:
+      this.renderedSceneObj.modeLink();
+      break;
+    default:
+      console.log("Unknown Error");
+      return;
+  }
+
   this.mode = mode;
 };
 
 Scene.prototype.setNodeType = function (nodeType) {
+  if (this.mode !== Constant.Mode_Node) {
+    console.log("Mode is not Mode_Node");
+    return;
+  }
 
+  if (!this.nodeClassesMap[nodeType]) {
+    console.log("Node with '" + nodeType + "' not found.");
+    return;
+  }
+
+  this.nodeType = nodeType;
 };
 
 Scene.prototype.setLinkType = function (linkType) {
+  if (this.mode !== Constant.Mode_Link) {
+    console.log("Mode is not Mode_Node");
+    return;
+  }
 
+  if (!this.linkClassesMap[linkType]) {
+    console.log("Link with '" + linkType + "' not found.");
+    return;
+  }
+
+  this.linkType = linkType;
 };
 
+//@private method
+Scene.protoType.createNode = function (position) {
+  //position is value of click mouse position.
+};
 
 /*
   imports data that represents scene data

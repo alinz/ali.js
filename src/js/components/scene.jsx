@@ -14,6 +14,7 @@ var React               = require("react/addons"),
     //utils
     Vector2D            = require("./../util/math/vector2d.js"),
     generator           = require("./../util/generator.js"),
+    Constant            = require("./../constant.js"),
 
     //mixins
     AnimationFrameMixin = require("./../mixins/animation-frame.js"),
@@ -33,7 +34,9 @@ var React               = require("react/addons"),
     transform           = "",
 
     dynamicLineId       = generator.genLinkId(),
-    dynamicLine;
+    dynamicLine,
+
+    mousePosition       = new Vector2D();
 
 React.initializeTouchEvents(true);
 
@@ -191,6 +194,19 @@ var Scene = React.createClass({
       data: null
     });
   },
+  onClick: function (event) {
+    var internalMousePosition,
+        node;
+
+    if (this.sceneObj.mode === Constant.Mode_Node) {
+      internalMousePosition = new Vector2D();
+      internalMousePosition.copyFrom(this.getMouseTouchPosition(event));
+
+      
+
+      this.sceneObj.sceneWillCreateNode()
+    }
+  },
   render: function () {
     var nodeObj,
         nodes = [],
@@ -245,7 +261,9 @@ var Scene = React.createClass({
     }
 
     return (
-      <svg className={classNames} onMouseDown={this.startDragging}>
+      <svg className={classNames}
+           onMouseDown={this.startDragging}
+           onClick={this.onClick}>
         <g transform={transform}>{dynamicLine}</g>
         <g transform={transform}>{nodes}</g>
         <g transform={transform}>{links}</g>
