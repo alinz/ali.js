@@ -47,15 +47,6 @@ function Scene() {
 //# non override methods
 //##############################################################################
 
-Scene.prototype.mode = function (mode) {
-  if (mode) {
-    this.mode = mode;
-    return this;
-  } else {
-    return this.mode;
-  }
-};
-
 Scene.prototype.setMode = function (mode) {
   switch (mode) {
     case Constant.Mode_Default:
@@ -104,8 +95,31 @@ Scene.prototype.setLinkType = function (linkType) {
 };
 
 //@private method
-Scene.protoType.createNode = function (position) {
+Scene.prototype.createNode = function (position) {
   //position is value of click mouse position.
+  var constScenePosition = this.renderedSceneObj.state.position,
+      constSceneScale = this.renderedSceneObj.state.scale,
+      NodeClass = this.nodeClassesMap[this.nodeType],
+      node = new NodeClass();
+
+  /*
+    example:
+    click on (100, 100)
+    page position is (-10, -10)
+   */
+  node.position.add(position);
+  node.position.sub(constScenePosition);
+  node.size.div(2);
+  node.position.sub(node.size);
+  node.size.div(0.5);
+
+  this.sceneWillCreateNode(node, function () {
+    
+  }.bind(this), function () {
+
+  }.bind(this));
+
+  console.log(node);
 };
 
 /*

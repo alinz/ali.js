@@ -6,9 +6,7 @@ var nodeTypes = [
 
     //object properties
     attributes: {
-      label: "RabbitMQ",
-      position: [0, 0],
-      size: [100, 100]
+      label: "RabbitMQ"
     }
   }
 ];

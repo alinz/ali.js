@@ -9,15 +9,17 @@ Ali.attach(Ali.createScene({
   },
   sceneDidReady: function () {
     console.log("Scene is Ready");
+    this.setMode(Ali.Constant.Mode_Node);
+    this.setNodeType("RabbitMQ");
   },
   sceneWillCreateNode: function (node, proceed, stop) {
-    proceed();
+    //proceed();
   },
   sceneDidCreateNode: function (node) {
 
   },
   sceneWillConnectNodes: function (nodeA, nodeB, link, proceed, stop) {
-    proceed();
+    //proceed();
   },
   sceneDidConnectNodes: function (nodeA, nodeB, link) {
 

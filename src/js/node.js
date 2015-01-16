@@ -9,9 +9,13 @@
 
 "use strict";
 
-var Extend = require("./util/extend.js");
+var Extend = require("./util/extend.js"),
+    Vector2D = require("./util/math/vector2d.js");
 
-function Node() { }
+function Node() {
+  this.position = new Vector2D();
+  this.size = new Vector2D(100, 100);
+}
 
 Node.extend = function (extendNode) {
   var attributes = extendNode.attributes || {};

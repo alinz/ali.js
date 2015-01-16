@@ -11,7 +11,7 @@
 
 var React                     = require("react"),
 
-    Mode                      = require("./constant.js").Mode,
+    Constant                  = require("./constant.js"),
 
     //base class for scene managment
     SceneBaseClass            = require("./scene.js"),
@@ -28,11 +28,11 @@ var React                     = require("react"),
     Ali                       = {},
     shouldMethodsToOverride   = [ "getNodesDefinition",
                                   "getLinksDefinition" ],
-    illegalMethodsToOverride  = [ "mode",
-                                  "camera",
+    illegalMethodsToOverride  = [ "setMode",
+                                  "setNodeType",
+                                  "setLinkType",
                                   "import",
-                                  "export",
-                                  "setCursor" ];
+                                  "export" ];
 
 Ali.version = VERSION;
 
@@ -41,7 +41,7 @@ Ali.createScene = function (definition) {
     SceneBaseClass.call(this);
   }
 
-  SceneExtend.prototype = Object.create(SceneBaseClass);
+  SceneExtend.prototype = Object.create(SceneBaseClass.prototype);
   SceneExtend.prototype.constructor = SceneExtend;
 
   //these methods should be overridden
@@ -79,7 +79,7 @@ Ali.attach = function (SceneExtendedClass, domElement) {
   );
 };
 
-Ali.Mode = Mode;
+Ali.Constant = Constant;
 
 module.exports = Ali;
 

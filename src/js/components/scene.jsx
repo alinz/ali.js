@@ -38,6 +38,15 @@ var React               = require("react/addons"),
 
     mousePosition       = new Vector2D();
 
+
+function tryCall(func) {
+  if (!func()) {
+    setTimeout(function () {
+      tryCall(func);
+    }, 100);
+  }
+}
+
 React.initializeTouchEvents(true);
 
 var Scene = React.createClass({
@@ -170,7 +179,15 @@ var Scene = React.createClass({
     this.startZoom();
     this.initDragging();
 
-    this.sceneObj.sceneDidReady();
+    //because scene object is called first we need to make it
+    //delay.
+    tryCall(function () {
+      if (this.sceneObj.renderedSceneObj) {
+        this.sceneObj.sceneDidReady();
+        return true;
+      }
+      return false;
+    }.bind(this));
   },
   componentWillUnmount: function () {
     this.stopZoom();
@@ -195,16 +212,12 @@ var Scene = React.createClass({
     });
   },
   onClick: function (event) {
-    var internalMousePosition,
-        node;
+    var internalMousePosition;
 
     if (this.sceneObj.mode === Constant.Mode_Node) {
       internalMousePosition = new Vector2D();
       internalMousePosition.copyFrom(this.getMouseTouchPosition(event));
-
-      
-
-      this.sceneObj.sceneWillCreateNode()
+      this.sceneObj.createNode(internalMousePosition);
     }
   },
   render: function () {
