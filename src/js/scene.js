@@ -125,14 +125,12 @@ Scene.prototype.createNode = function (position) {
     //call method that node has been added to scene
     this.sceneDidCreateNode(node);
 
-  }.bind(this), function () {
-    //for now we are doing nothing.
-    //we might add sceneFailedCreateNode(node)
+  }.bind(this), function (err) {
+    this.sceneFailedCreateNode(err, node);
   }.bind(this));
 };
 
 Scene.prototype.connectNodes = function (sourceNode, targetNode) {
-
   var LinkClass = this.linkClassesMap[this.linkType],
       link = new LinkClass();
 
@@ -144,10 +142,14 @@ Scene.prototype.connectNodes = function (sourceNode, targetNode) {
                              link,
                              function () {
                                this.renderedSceneObj.addLink(link);
-                               this.sceneDidConnectNodes(sourceNode, targetNode, link);
-                             }.bind(this), function () {
-                               //for now we are doing nothing.
-                               //we might add sceneFailedConnectNodes(sourceNode, targetNode, link)
+                               this.sceneDidConnectNodes(sourceNode,
+                                                         targetNode,
+                                                         link);
+                             }.bind(this), function (err) {
+                               this.sceneFailedConnectNodes(err,
+                                                            sourceNode,
+                                                            targetNode,
+                                                            link);
                              }.bind(this));
 };
 
@@ -206,12 +208,23 @@ Scene.prototype.sceneWillCreateNode = function (node, proceed, stop) {
   proceed();
 };
 
-Scene.prototype.sceneWillConnectNodes = function (sourceNode, targetNode, link, proceed, stop) {
+Scene.prototype.sceneWillConnectNodes = function (sourceNode,
+                                                  targetNode,
+                                                  link,
+                                                  proceed,
+                                                  stop) {
   proceed();
 };
 
-Scene.prototype.sceneDidCreateNode = function (node) {};
-Scene.prototype.sceneDidConnectNodes = function (sourceNode, targetNode, link) { };
+Scene.prototype.sceneDidCreateNode = function (node) { };
+Scene.prototype.sceneFailedCreateNode = function (err, node) { };
+Scene.prototype.sceneDidConnectNodes = function (sourceNode,
+                                                 targetNode,
+                                                 link) { };
+Scene.prototype.sceneFailedConnectNodes = function (err,
+                                                    sourceNode,
+                                                    targetNode,
+                                                    link) { };
 Scene.prototype.sceneDidRequestNodeInfo = function (node) { };
 Scene.prototype.sceneDidRequestLinkInfo = function (link) { };
 
