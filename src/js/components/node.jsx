@@ -19,6 +19,7 @@ var React           = require("react"),
     //util
     Vector2D        = require("./../util/math/vector2d.js"),
     Constant        = require("./../constant.js"),
+    Helper          = require("./../util/helper.js"),
 
     //mixins
     DraggableMixin  = require("./../mixins/draggable.js"),
@@ -32,6 +33,7 @@ var React           = require("react"),
     props,
     objRef,
     tempConnectNodes,
+    labelLength,
 
     //I need these two pointers which point to function which contains
     //listeners.
@@ -185,7 +187,7 @@ var Node = React.createClass({
     props = this.props;
     objRef = props.objRef;
 
-    var href = "/dist/asset/img/rabbitmq-600x600.png";
+    labelLength = Helper.getTextLength(objRef.label);
 
     return (
       <g onMouseDown={this.__onMouseDown} onMouseUp={this.__onMouseUp}>
@@ -193,9 +195,14 @@ var Node = React.createClass({
               y={objRef.position.y}
               width={objRef.size.x}
               height={objRef.size.y}/>
+
+        <Label x={objRef.position.x + labelLength.width / 4}
+               y={objRef.position.y + objRef.size.y + 15}
+               value={objRef.label}/>
+
         <Image position={objRef.position}
                size={objRef.size}
-               href={href}/>
+               href={objRef.constructor.icon}/>
       </g>
     );
   }
