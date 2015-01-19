@@ -220,7 +220,9 @@ var Scene = React.createClass({
         dynamicLink,
         links = [],
         state = this.state,
-        classNamesObj = {},
+        classNamesObj = {
+          "ali-svg": true
+        },
         classNames = "";
 
     classNames = classSet(classNamesObj);

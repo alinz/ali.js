@@ -14,6 +14,7 @@ var React           = require("react"),
     //components
     Rect            = require("./rect.jsx"),
     Label           = require("./label.jsx"),
+    Image           = require("./image.jsx"),
 
     //util
     Vector2D        = require("./../util/math/vector2d.js"),
@@ -184,12 +185,17 @@ var Node = React.createClass({
     props = this.props;
     objRef = props.objRef;
 
+    var href = "/dist/asset/img/rabbitmq-600x600.png";
+
     return (
       <g onMouseDown={this.__onMouseDown} onMouseUp={this.__onMouseUp}>
         <Rect x={objRef.position.x}
               y={objRef.position.y}
               width={objRef.size.x}
               height={objRef.size.y}/>
+        <Image position={objRef.position}
+               size={objRef.size}
+               href={href}/>
       </g>
     );
   }

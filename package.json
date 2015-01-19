@@ -17,6 +17,6 @@
     "gulp-less": "2.0.1"
   },
   "dependencies": {
-    "react": "0.12.1"
+    "react": "0.12.2"
   }
 }
