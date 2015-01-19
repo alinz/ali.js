@@ -109,10 +109,7 @@ Scene.prototype.createNode = function (position) {
    */
   node.position.add(position);
   node.position.sub(constScenePosition);
-
-
   node.position.div(constSceneScale);
-
   node.size.div(2);
   node.position.sub(node.size);
   node.size.div(0.5);
@@ -125,11 +122,33 @@ Scene.prototype.createNode = function (position) {
     //call render scene once we adding the object into
     this.renderedSceneObj.update();
 
+    //call method that node has been added to scene
+    this.sceneDidCreateNode(node);
+
   }.bind(this), function () {
-
+    //for now we are doing nothing.
+    //we might add sceneFailedCreateNode(node)
   }.bind(this));
+};
 
-  console.log(node);
+Scene.prototype.connectNodes = function (sourceNode, targetNode) {
+
+  var LinkClass = this.linkClassesMap[this.linkType],
+      link = new LinkClass();
+
+  link.source = sourceNode.id;
+  link.target = targetNode.id;
+
+  this.sceneWillConnectNodes(sourceNode,
+                             targetNode,
+                             link,
+                             function () {
+                               this.renderedSceneObj.addLink(link);
+                               this.sceneDidConnectNodes(sourceNode, targetNode, link);
+                             }.bind(this), function () {
+                               //for now we are doing nothing.
+                               //we might add sceneFailedConnectNodes(sourceNode, targetNode, link)
+                             }.bind(this));
 };
 
 /*
@@ -187,12 +206,12 @@ Scene.prototype.sceneWillCreateNode = function (node, proceed, stop) {
   proceed();
 };
 
-Scene.prototype.sceneWillConnectNodes = function (nodeA, nodeB, link, proceed, stop) {
+Scene.prototype.sceneWillConnectNodes = function (sourceNode, targetNode, link, proceed, stop) {
   proceed();
 };
 
 Scene.prototype.sceneDidCreateNode = function (node) {};
-Scene.prototype.sceneDidConnectNodes = function (nodeA, nodeB, link) { };
+Scene.prototype.sceneDidConnectNodes = function (sourceNode, targetNode, link) { };
 Scene.prototype.sceneDidRequestNodeInfo = function (node) { };
 Scene.prototype.sceneDidRequestLinkInfo = function (link) { };
 

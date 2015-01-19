@@ -11,6 +11,14 @@ Ali.attach(Ali.createScene({
     console.log("Scene is Ready");
     this.setMode(Ali.Constant.Mode_Node);
     this.setNodeType("RabbitMQ");
+
+
+    setTimeout(function () {
+      this.setMode(Ali.Constant.Mode_Link);
+      this.setLinkType("TCP");
+
+      console.log("LINK MODE");
+    }.bind(this), 4000);
   },
   sceneWillCreateNode: function (node, proceed, stop) {
     proceed();
@@ -18,10 +26,10 @@ Ali.attach(Ali.createScene({
   sceneDidCreateNode: function (node) {
 
   },
-  sceneWillConnectNodes: function (nodeA, nodeB, link, proceed, stop) {
-    //proceed();
+  sceneWillConnectNodes: function (sourceNode, targetNode, link, proceed, stop) {
+    proceed();
   },
-  sceneDidConnectNodes: function (nodeA, nodeB, link) {
+  sceneDidConnectNodes: function (sourceNode, targetNode, link) {
 
   },
   sceneDidRequestNodeInfo: function (node) {

@@ -15,6 +15,9 @@ var Extend      = require("./util/extend.js"),
 function Link() {
   //id will be overrided once we loaded the object from JSON
   this.id = generator.genLinkId();
+
+  this.source = "";
+  this.target = "";
 }
 
 Link.extend = function (extendLink) {

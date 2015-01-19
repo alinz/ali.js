@@ -57,17 +57,6 @@ var Scene = React.createClass({
     ZoomMixin,
     DraggableMixin
   ],
-  __addNewNode: function () {
-    var tempId = generator.genNodeId();
-
-    this.state.data.nodes[tempId] = {
-      id: tempId,
-      data: null,
-      position: new Vector2D()
-    };
-
-    this.update();
-  },
   //this method called when the default key is being pressed.
   //default key by default is Esc key which resets all the states to origianl
   modeDefault: function () {
@@ -107,16 +96,18 @@ var Scene = React.createClass({
       json.links.push({
         id:     link.id,
         type:   link.type,
-        source: link.source.id,
-        target: link.target.id
+        source: link.source.id || link.source,
+        target: link.target.id || link.target
       });
     });
 
     return json;
   },
   fromJSON: function (data) {
-    var state = this.state,
-        nodesMap = {};
+    var state = this.state;
+
+    //reset nodesMap
+    state.nodesMap = {};
 
     data = "string" === typeof data? JSON.parse(data) : data;
 
@@ -141,13 +132,7 @@ var Scene = React.createClass({
     //for next loop
     data.nodes.forEach(function (node) {
       node.positon = new Vector2D(node.position.x, node.position.y);
-      data.nodesMap[node.id] = node;
-    });
-
-    //converts source id as string into source object.
-    data.links.forEach(function (link) {
-      link.source = data.nodesMap[link.source];
-      link.target = data.nodesMap[link.target];
+      state.nodesMap[node.id] = node;
     });
 
     //finally assign jsonObject to state.data
@@ -158,6 +143,10 @@ var Scene = React.createClass({
       scale: 1.0,
       position: new Vector2D(0, 0),
       renderTrigger: 0,
+
+      //this map is uses in render to find source and target of
+      //connected nodes.
+      nodesMap: {},
 
       connectNodes: {
         source: { id: "", position: new Vector2D() },
@@ -199,17 +188,10 @@ var Scene = React.createClass({
   },
   shouldNodeConnect: function () {
     var state         = this.state,
-        connectNodes  = state.connectNodes,
-        links         = state.data.links,
+        connectNodes  = state.connectNodes;
 
-        linkId        = generator.genLinkId();
-
-    links.push({
-      id: linkId,
-      source: connectNodes.source.id,
-      target: connectNodes.target.id,
-      data: null
-    });
+    this.sceneObj.connectNodes(state.nodesMap[connectNodes.source.id],
+                               state.nodesMap[connectNodes.target.id]);
   },
   onClick: function (event) {
     var internalMousePosition;
@@ -222,7 +204,12 @@ var Scene = React.createClass({
   },
   //this method is called by Scene object only
   addNode: function (node) {
+    this.state.nodesMap[node.id] = node;
     this.state.data.nodes.push(node);
+  },
+  //this method is called by Scene object only
+  addLink: function (link) {
+    this.state.data.links.push(link);
   },
   getMode: function () {
     return this.sceneObj.mode;
@@ -250,11 +237,12 @@ var Scene = React.createClass({
     }.bind(this));
 
     state.data.links.forEach(function (link) {
-      var sourceNode = state.data.nodes[link.source],
-          targetNode = state.data.nodes[link.target];
+      var sourceNode = state.nodesMap[link.source],
+          targetNode = state.nodesMap[link.target];
 
       links.push(
         <Link key={link.id}
+              linkRef={link}
               source={sourceNode}
               target={targetNode}/>
       );
