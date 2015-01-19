@@ -40,7 +40,7 @@ var React       = require("react"),
 
 var Link = React.createClass({
   propTypes: {
-    linkRef: React.PropTypes.instanceOf(LinkClass).isRequired,
+    objRef: React.PropTypes.instanceOf(LinkClass).isRequired,
     source: React.PropTypes.instanceOf(NodeClass).isRequired,
     target: React.PropTypes.instanceOf(NodeClass).isRequired
   },
@@ -85,6 +85,9 @@ var Link = React.createClass({
                                       props.source.size,
                                       props.target.centerPosition,
                                       props.target.size)) {
+
+      //rendering a null instead of react object cause react to not render that
+      //object.
       return null;
     }
 

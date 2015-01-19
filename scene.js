@@ -19,6 +19,12 @@ Ali.attach(Ali.createScene({
 
       console.log("LINK MODE");
     }.bind(this), 4000);
+
+    setTimeout(function () {
+      this.setMode(Ali.Constant.Mode_Default);
+
+      console.log("DEFAULT MODE");
+    }.bind(this), 8000);
   },
   sceneWillCreateNode: function (node, proceed, stop) {
     proceed();

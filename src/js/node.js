@@ -20,10 +20,10 @@ var generator   = require("./util/generator.js"),
 function Node() {
   //id will be overrided once we loaded the object from JSON
   this.id             = generator.genNodeId();
-  
-  this.position       = new Vector2D();
+
+  this.position       = new Vector2D(0, 0);
   this.size           = new Vector2D(100, 100);
-  this.centerPosition = new Vector2D();
+  this.centerPosition = new Vector2D(0, 0);
 }
 
 Node.extend = function (extendNode) {

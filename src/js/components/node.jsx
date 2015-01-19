@@ -29,7 +29,7 @@ var React           = require("react"),
     //globals
     sourceClone     = new Vector2D(),
     props,
-    nodeRef,
+    objRef,
     tempConnectNodes,
 
     //I need these two pointers which point to function which contains
@@ -45,7 +45,8 @@ function updateCenterPosition(obj) {
 
 /*
   This node receives the follwoing properties from Scene Render Object
-  nodeRef: it is an object of node which contains
+  scale: we need scale for dragging mixin
+  objRef: it is an object of node which contains
         {label, size and position}
         all the updates must be happening with this object.
 
@@ -64,24 +65,25 @@ var Node = React.createClass({
     TouchUtilMixin
   ],
   propTypes: {
-    nodeRef: React.PropTypes.instanceOf(NodeClass).isRequired,
+    scale: React.PropTypes.number.isRequired,
+    objRef: React.PropTypes.instanceOf(NodeClass).isRequired,
     update: React.PropTypes.func.isRequired,
     shouldNodeConnect: React.PropTypes.func.isRequired,
     connectNodes: React.PropTypes.any.isRequired,
     mode: React.PropTypes.func.isRequired
   },
   calculateSize: function () {
-    nodeRef = this.props.nodeRef;
+    objRef = this.props.objRef;
 
-    if (!(nodeRef.size instanceof Vector2D)) {
-      nodeRef.size = new Vector2D(100, 100);
+    if (!(objRef.size instanceof Vector2D)) {
+      objRef.size = new Vector2D(100, 100);
     }
 
-    if (!(nodeRef.centerPosition instanceof Vector2D)) {
-      nodeRef.centerPosition = new Vector2D();
+    if (!(objRef.centerPosition instanceof Vector2D)) {
+      objRef.centerPosition = new Vector2D();
     }
 
-    updateCenterPosition(nodeRef);
+    updateCenterPosition(objRef);
   },
   update: function () {
     this.props.update();
@@ -100,11 +102,11 @@ var Node = React.createClass({
         break;
       case Constant.Mode_Link:
         tempConnectNodes = this.props.connectNodes;
-        nodeRef = this.props.nodeRef;
+        objRef = this.props.objRef;
 
         //we need to keep track of id because later we have to bind the
         //source and target nodes.
-        tempConnectNodes.source.id = nodeRef.id;
+        tempConnectNodes.source.id = objRef.id;
 
         sourceClone.copyFrom(this.getMouseTouchPosition(event));
 
@@ -162,12 +164,12 @@ var Node = React.createClass({
     this.update();
   },
   __onMouseUp: function () {
-    nodeRef = this.props.nodeRef;
+    objRef = this.props.objRef;
 
     switch (this.props.mode()) {
       case Constant.Mode_Link:
         tempConnectNodes = this.props.connectNodes;
-        tempConnectNodes.target.id = nodeRef.id;
+        tempConnectNodes.target.id = objRef.id;
 
         this.props.shouldNodeConnect();
 
@@ -180,14 +182,14 @@ var Node = React.createClass({
     this.calculateSize();
 
     props = this.props;
-    nodeRef = props.nodeRef;
+    objRef = props.objRef;
 
     return (
       <g onMouseDown={this.__onMouseDown} onMouseUp={this.__onMouseUp}>
-        <Rect x={nodeRef.position.x}
-              y={nodeRef.position.y}
-              width={nodeRef.size.x}
-              height={nodeRef.size.y}/>
+        <Rect x={objRef.position.x}
+              y={objRef.position.y}
+              width={objRef.size.x}
+              height={objRef.size.y}/>
       </g>
     );
   }

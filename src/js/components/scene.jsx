@@ -228,7 +228,8 @@ var Scene = React.createClass({
     state.data.nodes.forEach(function (node) {
       nodes.push(
         <Node key={node.id}
-              nodeRef={node}
+              scale={state.scale}
+              objRef={node}
               shouldNodeConnect={this.shouldNodeConnect}
               update={this.update}
               connectNodes={state.connectNodes}
@@ -242,7 +243,7 @@ var Scene = React.createClass({
 
       links.push(
         <Link key={link.id}
-              linkRef={link}
+              objRef={link}
               source={sourceNode}
               target={targetNode}/>
       );
