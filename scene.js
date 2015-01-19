@@ -13,7 +13,7 @@ Ali.attach(Ali.createScene({
     this.setNodeType("RabbitMQ");
   },
   sceneWillCreateNode: function (node, proceed, stop) {
-    //proceed();
+    proceed();
   },
   sceneDidCreateNode: function (node) {
 

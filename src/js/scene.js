@@ -109,13 +109,21 @@ Scene.prototype.createNode = function (position) {
    */
   node.position.add(position);
   node.position.sub(constScenePosition);
+
+
+  node.position.div(constSceneScale);
+
   node.size.div(2);
   node.position.sub(node.size);
   node.size.div(0.5);
 
   this.sceneWillCreateNode(node, function () {
 
-    
+    //we need to add it to internal state of renderedSceneObject
+    this.renderedSceneObj.addNode(node);
+
+    //call render scene once we adding the object into
+    this.renderedSceneObj.update();
 
   }.bind(this), function () {
 

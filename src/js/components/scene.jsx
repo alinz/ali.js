@@ -220,6 +220,13 @@ var Scene = React.createClass({
       this.sceneObj.createNode(internalMousePosition);
     }
   },
+  //this method is called by Scene object only
+  addNode: function (node) {
+    this.state.data.nodes.push(node);
+  },
+  getMode: function () {
+    return this.sceneObj.mode;
+  },
   render: function () {
     var nodeObj,
         nodes = [],
@@ -232,13 +239,14 @@ var Scene = React.createClass({
     classNames = classSet(classNamesObj);
 
     state.data.nodes.forEach(function (node) {
-      return <Node key={node.id}
-                   scale={state.scale}
-                   objRef={node}
-                   label={"node.label"}
-                   shouldNodeConnect={this.shouldNodeConnect}
-                   update={this.update}
-                   connectNodes={state.connectNodes}/>
+      nodes.push(
+        <Node key={node.id}
+              nodeRef={node}
+              shouldNodeConnect={this.shouldNodeConnect}
+              update={this.update}
+              connectNodes={state.connectNodes}
+              mode={this.getMode}/>
+      );
     }.bind(this));
 
     state.data.links.forEach(function (link) {

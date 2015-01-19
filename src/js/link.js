@@ -9,9 +9,13 @@
 
 "use strict";
 
-var Extend = require("./util/extend.js");
+var Extend      = require("./util/extend.js"),
+    generator   = require("./util/generator.js");
 
-function Link() { }
+function Link() {
+  //id will be overrided once we loaded the object from JSON
+  this.id = generator.genLinkId();
+}
 
 Link.extend = function (extendLink) {
   var attributes = extendLink.attributes || {};
