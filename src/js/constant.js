@@ -9,10 +9,13 @@
 
 "use strict";
 
-module.exports = {
-  Mode: {
-    Default:          0,
-    Node:             1,
-    Link:             2
-  }
-};
+var genId = require("./util/generator.js").genId;
+
+function Constant() { }
+
+//defines 3 different modes
+Constant.Mode_Default   = genId();
+Constant.Mode_Node      = genId();
+Constant.Mode_Link      = genId();
+
+module.exports = Constant;

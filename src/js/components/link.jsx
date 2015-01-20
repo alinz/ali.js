@@ -15,6 +15,10 @@ var React       = require("react"),
     Vector2D    = require("./../util/math/vector2d.js"),
     Physics     = require("./../util/math/physics.js"),
 
+    //classes
+    NodeClass   = require("./../node.js"),
+    LinkClass   = require("./../link.js"),
+
     //components
     Line        = require("./line.jsx"),
 
@@ -36,8 +40,9 @@ var React       = require("react"),
 
 var Link = React.createClass({
   propTypes: {
-    source: React.PropTypes.any.isRequired,
-    target: React.PropTypes.any.isRequired
+    objRef: React.PropTypes.instanceOf(LinkClass).isRequired,
+    source: React.PropTypes.instanceOf(NodeClass).isRequired,
+    target: React.PropTypes.instanceOf(NodeClass).isRequired
   },
   _calculateIntersectPoint: function (angle, constObj, ref) {
     cosAngle    = Math.cos(angle);
@@ -80,6 +85,9 @@ var Link = React.createClass({
                                       props.source.size,
                                       props.target.centerPosition,
                                       props.target.size)) {
+
+      //rendering a null instead of react object cause react to not render that
+      //object.
       return null;
     }
 
@@ -94,7 +102,7 @@ var Link = React.createClass({
       <g>
         <Line source={fromVector}
               target={toVector}/>
-              
+
         <circle cx={fromVector.x}
                 cy={fromVector.y}
                 r={5}

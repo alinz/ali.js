@@ -14,6 +14,7 @@ var React               = require("react/addons"),
     //utils
     Vector2D            = require("./../util/math/vector2d.js"),
     generator           = require("./../util/generator.js"),
+    Constant            = require("./../constant.js"),
 
     //mixins
     AnimationFrameMixin = require("./../mixins/animation-frame.js"),
@@ -33,86 +34,20 @@ var React               = require("react/addons"),
     transform           = "",
 
     dynamicLineId       = generator.genLinkId(),
-    dynamicLine;
+    dynamicLine,
+
+    mousePosition       = new Vector2D();
+
+
+function tryCall(func) {
+  if (!func()) {
+    setTimeout(function () {
+      tryCall(func);
+    }, 100);
+  }
+}
 
 React.initializeTouchEvents(true);
-
-function processData(source) {
-  var result = { nodes: {}, links: [] },
-      linkObj,
-      nodeObj,
-      tempId,
-      tempSource,
-      tempTarget;
-
-  //we need to generate id per load. as an example,
-  //if some node generated and deleted, the ranaming id can
-  //be overriden by new node. So by having a a convertorMap,
-  //we can generate id per load.
-  var mapId = {};
-
-  source.nodes.forEach(function (node) {
-    tempId = generator.genNodeId();
-    mapId[node.id] = tempId;
-
-    result.nodes[tempId] = {
-      id: tempId,
-      data: node.data,
-      position: new Vector2D(node.position.x, node.position.y)
-    }
-  });
-
-  source.links.forEach(function (link) {
-    tempSource = mapId[link.source];
-    tempTarget = mapId[link.target];
-
-    linkObj = {
-      id: generator.genLinkId(),
-      source: tempSource,
-      target: tempTarget,
-      data: link.data
-    };
-
-    nodeObj = result.nodes[tempSource];
-
-    if (!nodeObj) {
-      throw "a link tries to connect to a non-exists node.";
-    }
-
-    result.links.push(linkObj);
-  });
-
-  return result;
-}
-
-function objectToJSON(obj) {
-  var data = { links: [], nodes: [] },
-      node;
-
-  Object.keys(obj.nodes).forEach(function (nodeId) {
-      node = obj.nodes[nodeId];
-      data.nodes.push({
-        id: node.id,
-        data: node.data,
-        position: {
-          x: node.position.x,
-          y: node.position.y
-        }
-      });
-  });
-
-  obj.links.forEach(function (link) {
-    data.links.push({
-      id: link.id,
-      source: link.source,
-      target: link.target,
-      data: link.data
-    });
-  });
-
-  return data;
-}
-
 
 var Scene = React.createClass({
   mixins: [
@@ -122,123 +57,126 @@ var Scene = React.createClass({
     ZoomMixin,
     DraggableMixin
   ],
-  propTypes: {
-    source: React.PropTypes.shape(
-      {
-        links: React.PropTypes.arrayOf(
-          React.PropTypes.shape(
-            {
-              source: React.PropTypes.string.isRequired,
-              target: React.PropTypes.string.isRequired,
-              data: React.PropTypes.arrayOf(React.PropTypes.any).isOptional
-            }
-          )//end of shape of each element in links array
-        ),//end of links
-        nodes: React.PropTypes.arrayOf(
-          React.PropTypes.shape(
-            {
-              id: React.PropTypes.string.isRequired,
-              data: React.PropTypes.arrayOf(React.PropTypes.any).isOptional,
-              position: React.PropTypes.shape(
-                {
-                  x: React.PropTypes.number.isRequired,
-                  y: React.PropTypes.number.isRequired
-                }
-              ).isRequired //end of shape of position
-            }
-          )//end of shape of each node in nodes array
-        )//end of nodes
-      }//end of shape of source
-    )//end of source
-  },
-  __addNewNode: function () {
-    var tempId = generator.genNodeId();
-
-    this.state.source.nodes[tempId] = {
-      id: tempId,
-      data: null,
-      position: new Vector2D()
-    };
-
-    this.update();
-  },
   //this method called when the default key is being pressed.
   //default key by default is Esc key which resets all the states to origianl
   modeDefault: function () {
     this.enableDragging(true);
-    this.setCursor("ali-cursor-default");
   },
   modeNode: function () {
     //we need to disable the dragging and panning.
     this.enableDragging(false);
-    this.setCursor("ali-cursor-node");
   },
   modeLink: function () {
-    this.setCursor("ali-cursor-link");
+
   },
   toJSON: function() {
     var state = this.state,
-        obj = objectToJSON(state.source);
+        json = {
+          meta: {
+            position: [state.position.x, state.position.y],
+            scale: state.scale
+          },
+          nodes: [],
+          links: []
+        };
 
-    obj.meta = {
-      scale: state.scale,
-      position: {
-        x: state.position.x,
-        y: state.position.y
-      }
-    };
+    //copy all nodes to json object
+    state.nodes.forEach(function (node) {
+      json.nodes.push({
+        id:       node.id,
+        type:     node.type,
+        position: [node.position.x, node.position.y],
+        size:     [node.size.x, node.size.y],
+        label:    node.label
+      });
+    });
 
-    return JSON.stringify(obj);
+    //copy all links to json object
+    state.links.forEach(function (link) {
+      json.links.push({
+        id:     link.id,
+        type:   link.type,
+        source: link.source.id || link.source,
+        target: link.target.id || link.target
+      });
+    });
+
+    return json;
   },
-  fromJSON: function (json) {
-    var obj = JSON.parse(json),
-      state = this.state;
+  fromJSON: function (data) {
+    var state = this.state;
+
+    //reset nodesMap
+    state.nodesMap = {};
+
+    data = "string" === typeof data? JSON.parse(data) : data;
 
     //configure global camera panning and scale
-    state.position.x = obj.meta.position.x;
-    state.position.y = obj.meta.position.y;
-    state.scale = obj.meta.scale;
+    state.position.x = data.meta.position[0];
+    state.position.y = data.meta.position[1];
+    state.scale = data.meta.scale;
 
-    //load all the nodes and links
-    state.source = processData(obj);
+    //these are temporary variables which only use internally
+    state.connectNodes.source.id = ""
+    state.connectNodes.source.position.x = 0;
+    state.connectNodes.source.position.y = 0;
+
+    state.connectNodes.target.id = ""
+    state.connectNodes.target.position.x = 0;
+    state.connectNodes.target.position.y = 0;
+
+    state.renderTrigger = 0;
+
+    //convert postion from javascript array to Vector2D
+    //construct nodesMap to extract node object by id in O(1)
+    //for next loop
+    data.nodes.forEach(function (node) {
+      node.positon = new Vector2D(node.position.x, node.position.y);
+      state.nodesMap[node.id] = node;
+    });
+
+    //finally assign jsonObject to state.data
+    state.data = data;
   },
   getInitialState: function () {
     var state = {
-      //this variable will be used to keep track of timeout
-      timeoutHandler: 0,
-      cursorClassName: "",
       scale: 1.0,
-      position: new Vector2D(),
-      source: null,
+      position: new Vector2D(0, 0),
+      renderTrigger: 0,
+
+      //this map is uses in render to find source and target of
+      //connected nodes.
+      nodesMap: {},
+
       connectNodes: {
-          source: {
-            id: "",
-            position: new Vector2D()
-          },
-          target: {
-            id: "",
-            position: new Vector2D()
-          }
+        source: { id: "", position: new Vector2D() },
+        target: { id: "", position: new Vector2D() }
       },
-      renderTrigger: 0
+      data: null
     };
     return state;
   },
-  componentWillMount: function () {
-    if (!this.state.source){
-      this.state.source = processData(this.props.data);
-    }
+  componentWillReceiveProps: function (props) {
+    this.sceneObj = props.scene;
+    this.fromJSON(props.data);
   },
-  componentWillReceiveProps: function (nextProps) {
-    this.state.source = processData(this.props.data);
+  componentWillMount: function () {
+    this.sceneObj = this.props.scene;
+    this.fromJSON(this.props.data);
   },
   componentDidMount: function () {
     this.startZoom();
     this.initDragging();
-  },
-  setCursor: function (className) {
-    this.state.cursorClassName = className;
-    this.update();
+
+    //because scene object is called first we need to make it
+    //delay.
+    tryCall(function () {
+      if (this.sceneObj.renderedSceneObj) {
+        this.sceneObj.sceneReady();
+        return true;
+      }
+      return false;
+    }.bind(this));
   },
   componentWillUnmount: function () {
     this.stopZoom();
@@ -250,48 +188,64 @@ var Scene = React.createClass({
   },
   shouldNodeConnect: function () {
     var state         = this.state,
-        connectNodes  = state.connectNodes,
-        links         = state.source.links,
+        connectNodes  = state.connectNodes;
 
-        linkId        = generator.genLinkId();
+    this.sceneObj.connectNodes(state.nodesMap[connectNodes.source.id],
+                               state.nodesMap[connectNodes.target.id]);
+  },
+  onClick: function (event) {
+    var internalMousePosition;
 
-    links.push({
-      id: linkId,
-      source: connectNodes.source.id,
-      target: connectNodes.target.id,
-      data: null
-    });
+    if (this.sceneObj.mode === Constant.Mode_Node) {
+      internalMousePosition = new Vector2D();
+      internalMousePosition.copyFrom(this.getMouseTouchPosition(event));
+      this.sceneObj.createNode(internalMousePosition);
+    }
+  },
+  //this method is called by Scene object only
+  addNode: function (node) {
+    this.state.nodesMap[node.id] = node;
+    this.state.data.nodes.push(node);
+  },
+  //this method is called by Scene object only
+  addLink: function (link) {
+    this.state.data.links.push(link);
+  },
+  getMode: function () {
+    return this.sceneObj.mode;
   },
   render: function () {
     var nodeObj,
-        nodes,
+        nodes = [],
         dynamicLink,
         links = [],
         state = this.state,
-        classNamesObj = {},
+        classNamesObj = {
+          "ali-svg": true
+        },
         classNames = "";
 
-    classNamesObj[this.state.cursorClassName] = true;
     classNames = classSet(classNamesObj);
 
-    nodes = Object.keys(state.source.nodes).map(function (nodeId) {
-      nodeObj = state.source.nodes[nodeId];
-
-      return <Node key={nodeObj.id}
-                   scale={state.scale}
-                   objRef={nodeObj}
-                   label={"node.label"}
-                   shouldNodeConnect={this.shouldNodeConnect}
-                   update={this.update}
-                   connectNodes={state.connectNodes}/>
+    state.data.nodes.forEach(function (node) {
+      nodes.push(
+        <Node key={node.id}
+              scale={state.scale}
+              objRef={node}
+              shouldNodeConnect={this.shouldNodeConnect}
+              update={this.update}
+              connectNodes={state.connectNodes}
+              mode={this.getMode}/>
+      );
     }.bind(this));
 
-    state.source.links.forEach(function (link) {
-      var sourceNode = state.source.nodes[link.source],
-          targetNode = state.source.nodes[link.target];
+    state.data.links.forEach(function (link) {
+      var sourceNode = state.nodesMap[link.source],
+          targetNode = state.nodesMap[link.target];
 
       links.push(
         <Link key={link.id}
+              objRef={link}
               source={sourceNode}
               target={targetNode}/>
       );
@@ -314,12 +268,14 @@ var Scene = React.createClass({
     if (state.connectNodes.source.position.distance(
           state.connectNodes.target.position) > 0) {
       dynamicLine = (<Line key={dynamicLineId}
-                          source={state.connectNodes.source.position}
-                          target={state.connectNodes.target.position}/>);
+                           source={state.connectNodes.source.position}
+                           target={state.connectNodes.target.position}/>);
     }
 
     return (
-      <svg className={classNames} onMouseDown={this.startDragging}>
+      <svg className={classNames}
+           onMouseDown={this.startDragging}
+           onClick={this.onClick}>
         <g transform={transform}>{dynamicLine}</g>
         <g transform={transform}>{nodes}</g>
         <g transform={transform}>{links}</g>

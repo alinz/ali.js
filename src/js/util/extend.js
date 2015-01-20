@@ -16,16 +16,16 @@ module.exports = function (funcClass, ObjectAttributes, ClassAttributes) {
 
   function ExtendClass() {
     funcClass.call(this);
-    Merge.object(this, objectProperties);
+    Merge.object(this, Object.create(objectProperties));
   }
 
   //inheritance
-  ExtendClass.prototype = Object.create(funcClass);
+  ExtendClass.prototype = Object.create(funcClass.prototype);
   ExtendClass.prototype.constructor = ExtendClass;
 
   //this section merges function only properties to prototypes and
   //reserved the object attributes to this pointer at constructor level.
-  Merge.object(ExtendClass.prototype, objectProperties, function (key, value) {
+  Merge.object(ExtendClass.prototype, ObjectAttributes, function (key, value) {
     if ("function" !== typeof value) {
       objectProperties[key] = value;
       return false;
@@ -33,4 +33,9 @@ module.exports = function (funcClass, ObjectAttributes, ClassAttributes) {
 
     return true;
   });
+
+  //attach Class Attributes
+  Merge.object(ExtendClass, ClassAttributes);
+
+  return ExtendClass;
 };

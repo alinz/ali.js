@@ -9,12 +9,33 @@
 
 "use strict";
 
-var Extend = require("./util/extend.js");
+var generator   = require("./util/generator.js"),
 
-function Node() { }
+    //utilities
+    Extend      = require("./util/extend.js"),
+
+    //math
+    Vector2D    = require("./util/math/vector2d.js");
+
+function Node() {
+  //id will be overrided once we loaded the object from JSON
+  this.id             = generator.genNodeId();
+
+  this.position       = new Vector2D(0, 0);
+  this.size           = new Vector2D(100, 100);
+  this.centerPosition = new Vector2D(0, 0);
+}
 
 Node.extend = function (extendNode) {
-  return Extend(Node, extendNode.attributes || {}, extendNode.meta || {});
+  var attributes = extendNode.attributes || {};
+
+  delete extendNode.attributes;
+
+  //we are deleting this property because it tries to set function.name property
+  //which causes javascript to throw an exception.
+  delete extendNode.name;
+
+  return Extend(Node, attributes, extendNode);
 };
 
 module.exports = Node;

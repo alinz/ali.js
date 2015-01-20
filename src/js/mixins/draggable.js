@@ -26,15 +26,13 @@ var Vector2D          = require("./../util/math/vector2d.js"),
 
 module.exports = {
   initDragging: function () {
-    this.setCursor("ali-cursor-default");
+
   },
   enableDragging: function (value) {
     isDraggingEnabled = !!value;
   },
   startDragging: function (event) {
     if (!isDraggingEnabled) { return; }
-
-    this.setCursor("ali-cursor-panning");
 
     draggingStart.copyFrom(this.getMouseTouchPosition(event));
 
@@ -50,14 +48,12 @@ module.exports = {
 
     if (!isDragging) return;
 
-    this.setCursor("ali-cursor-panning");
-
     //these two variables are set in a such a way that if the object is scene
     //if the object is a scene object, both global and internal will point to
     //this.state
     //otherwise, globalMeta points to this.props and internalMeta points to
     //this.props.objRef
-    if (this.state && this.state.source) {
+    if (this.state && "undefined" !== typeof this.state.renderTrigger) {
       internalMeta = globalMeta = this.state;
     } else {
       globalMeta = this.props;
@@ -82,8 +78,6 @@ module.exports = {
   },
   __stopDragging: function (event) {
     if (!isDraggingEnabled) { return; }
-
-    this.setCursor("ali-cursor-default");
 
     event.stopPropagation();
 

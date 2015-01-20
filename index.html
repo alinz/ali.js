@@ -1,56 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Ali.js</title>
+  <title>Test</title>
   <meta name="description" content="a node base tool">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link rel="stylesheet" href="dist/css/main.css">
 </head>
 <body>
   <div id="content" class="container"></div>
-  <script src="dist/js/main.js"></script>
+  <script type="text/javascript" src="dist/js/main.js"></script>
 
-  <script>
-    var Scene = Ali.createScene({
-        getNodesDefinition: function () {
-          return [
-            {
-              name: "RabbitMQ",
-              meta: {
-                icon: "dist/img/rabbitmq-600x600.png"
-              },
-              attributes: {
-                label: "RabbitMQ",
-                position: [0, 0],
-                size: [100, 100]
-              }
-            }
-          ];
-        },
-        getLinksDefinition: function () {
-          return [
-            {
-              name: "link1",
-              meta: {},
-              attributes: {}
-            }
-          ];
-        },
-        sceneWillCreateNode: function (node, proceed, stop) {
-          proceed();
-        },
-        sceneDidCreatedNode: function (node) {
-
-        },
-        sceneWillConnectNodes: function (nodeA, nodeB, link, proceed, stop) {
-          proceed();
-        },
-        sceneDidConnectNodes: function (nodeA, nodeB, link) {
-
-        }
-    });
-
-    Ali.attach(Scene, document.getElementById("content"));
-  </script>
+  <script type="text/javascript" src="node_types.js"></script>
+  <script type="text/javascript" src="link_types.js"></script>
+  <script type="text/javascript" src="scene.js"></script>
 </body>
 </html>

@@ -9,13 +9,14 @@
 
 "use strict";
 
+var key;
+
 module.exports = {
   object: function (target, source, filter) {
-    Object.keys(source).forEach(function (key) {
-      if ("function" === typeof filter && !filter(key, source[key])) {
-        return;
+    for (key in source) {
+      if ("function" !== typeof filter || filter(key, source[key])) {
+        target[key] = source[key];
       }
-      target[key] = source[key];
-    });
+    };
   }
 };
