@@ -7,7 +7,7 @@ Ali.attach(Ali.createScene({
   getLinksDefinition: function () {
     return linkTypes;
   },
-  sceneDidReady: function () {
+  sceneReady: function () {
     console.log("Scene is Ready");
     this.setMode(Ali.Constant.Mode_Node);
     this.setNodeType("RabbitMQ");

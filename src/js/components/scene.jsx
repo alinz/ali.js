@@ -172,7 +172,7 @@ var Scene = React.createClass({
     //delay.
     tryCall(function () {
       if (this.sceneObj.renderedSceneObj) {
-        this.sceneObj.sceneDidReady();
+        this.sceneObj.sceneReady();
         return true;
       }
       return false;
