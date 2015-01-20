@@ -14,20 +14,26 @@ var React           = require("react"),
     //components
     Rect            = require("./rect.jsx"),
     Label           = require("./label.jsx"),
+    Image           = require("./image.jsx"),
 
     //util
     Vector2D        = require("./../util/math/vector2d.js"),
-    keybind         = require("./../util/keybind.js"),
+    Constant        = require("./../constant.js"),
+    Helper          = require("./../util/helper.js"),
 
     //mixins
     DraggableMixin  = require("./../mixins/draggable.js"),
     TouchUtilMixin  = require("./../mixins/touch-util.js"),
+
+    //Classes
+    NodeClass       = require("./../node.js"),
 
     //globals
     sourceClone     = new Vector2D(),
     props,
     objRef,
     tempConnectNodes,
+    labelLength,
 
     //I need these two pointers which point to function which contains
     //listeners.
@@ -40,6 +46,22 @@ function updateCenterPosition(obj) {
   obj.centerPosition.y = obj.position.y + obj.size.y / 2;
 }
 
+/*
+  This node receives the follwoing properties from Scene Render Object
+  scale: we need scale for dragging mixin
+  objRef: it is an object of node which contains
+        {label, size and position}
+        all the updates must be happening with this object.
+
+  update: it is a function which triggers scene render update.
+  shouldNodeConnect: this is a function which will be called once 2 nodes are
+                     connected. The decision will be made based on Scene Impl.
+
+  connectNodes: is an object contains source and target which is updated by
+                node to be sent to Scene object to see whether these node
+                can be connected.
+
+ */
 var Node = React.createClass({
   mixins: [
     DraggableMixin,
@@ -47,11 +69,11 @@ var Node = React.createClass({
   ],
   propTypes: {
     scale: React.PropTypes.number.isRequired,
-    label: React.PropTypes.string.isRequired,
+    objRef: React.PropTypes.instanceOf(NodeClass).isRequired,
     update: React.PropTypes.func.isRequired,
     shouldNodeConnect: React.PropTypes.func.isRequired,
-    objRef: React.PropTypes.any.isRequired,
-    connectNodes: React.PropTypes.any.isRequired
+    connectNodes: React.PropTypes.any.isRequired,
+    mode: React.PropTypes.func.isRequired
   },
   calculateSize: function () {
     objRef = this.props.objRef;
@@ -77,11 +99,11 @@ var Node = React.createClass({
     return true;
   },
   __onMouseDown: function (event) {
-    switch (keybind.getCurrentState()) {
-      case keybind.constant.Default:
+    switch (this.props.mode()) {
+      case Constant.Mode_Default:
         this.startDragging(event);
         break;
-      case keybind.constant.AddLink:
+      case Constant.Mode_Link:
         tempConnectNodes = this.props.connectNodes;
         objRef = this.props.objRef;
 
@@ -147,8 +169,8 @@ var Node = React.createClass({
   __onMouseUp: function () {
     objRef = this.props.objRef;
 
-    switch (keybind.getCurrentState()) {
-      case keybind.constant.AddLink:
+    switch (this.props.mode()) {
+      case Constant.Mode_Link:
         tempConnectNodes = this.props.connectNodes;
         tempConnectNodes.target.id = objRef.id;
 
@@ -165,12 +187,22 @@ var Node = React.createClass({
     props = this.props;
     objRef = props.objRef;
 
+    labelLength = Helper.getTextLength(objRef.label);
+
     return (
       <g onMouseDown={this.__onMouseDown} onMouseUp={this.__onMouseUp}>
         <Rect x={objRef.position.x}
               y={objRef.position.y}
               width={objRef.size.x}
               height={objRef.size.y}/>
+
+        <Label x={objRef.position.x + labelLength.width / 4}
+               y={objRef.position.y + objRef.size.y + 15}
+               value={objRef.label}/>
+
+        <Image position={objRef.position}
+               size={objRef.size}
+               href={objRef.constructor.icon}/>
       </g>
     );
   }

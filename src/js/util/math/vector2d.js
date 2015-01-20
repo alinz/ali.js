@@ -90,6 +90,9 @@ Vector2D.prototype = {
   toString: function () {
     return "[" + this.x + ", " + this.y + "]";
   },
+  toJSON: function () {
+    return [this.x, this.y];
+  },
   clone: function () {
     return new Vector2D(this.x, this.y);
   }

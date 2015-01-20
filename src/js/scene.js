@@ -9,58 +9,148 @@
 
 "use strict";
 
-var Mode = require("./constant.js").Mode,
-    Node = require("./node.js"),
-    Link = require("./link.js");
+var Constant  = require("./constant.js"),
+    NodeClass = require("./node.js"),
+    LinkClass = require("./link.js");
 
 function Scene() {
   this.renderedSceneObj = null;
-  this.data = { nodes: [], links: [] };
-  this.mode = Mode.Default;
+  this.data = {
+    meta:{
+      position: [0, 0],
+      scale: 1.0
+    },
+    nodes: [],
+    links: []
+  };
+  this.mode = Constant.Mode_Default;
 
-  this.nodes = this.getNodesDefinition().map(function (nodeImpl) {
-    return Node.extend(nodeImpl);
-  });
-  
-  this.links = this.getLinksDefinition().map(function (linkImpl) {
-    return Link.extend(linkImpl);
-  });
+  this.nodeType = "";
+  this.linkType = "";
 
-  console.log(this.nodes);
-  console.log(this.links);
+  this.nodeClassesMap = {};
+  this.linkClassesMap = {};
+
+  //the following two loops go through all item in classes and assign each
+  //class to a map. Everytime an object is requested these map will be used
+  //to create a proper object.
+  this.getNodesDefinition().forEach(function (nodeImpl) {
+    this.nodeClassesMap[nodeImpl.type] = NodeClass.extend(nodeImpl);
+  }.bind(this));
+
+  this.getLinksDefinition().forEach(function (linkImpl) {
+    this.linkClassesMap[linkImpl.type] = LinkClass.extend(linkImpl);
+  }.bind(this));
 }
 
 //##############################################################################
 //# non override methods
 //##############################################################################
 
-Scene.prototype.mode = function (mode) {
-  if (mode) {
-    this.mode = mode;
-    return this;
-  } else {
-    return this.mode;
-  }
-};
-
-Scene.prototype.setCursor = function (className) {
-  this.renderedSceneObj.setCursor(className);
-};
-
 Scene.prototype.setMode = function (mode) {
+  switch (mode) {
+    case Constant.Mode_Default:
+      this.renderedSceneObj.modeDefault();
+      break;
+    case Constant.Mode_Node:
+      this.renderedSceneObj.modeNode();
+      break;
+    case Constant.Mode_Link:
+      this.renderedSceneObj.modeLink();
+      break;
+    default:
+      console.log("Unknown Error");
+      return;
+  }
+
   this.mode = mode;
 };
 
 Scene.prototype.setNodeType = function (nodeType) {
+  if (this.mode !== Constant.Mode_Node) {
+    console.log("Mode is not Mode_Node");
+    return;
+  }
 
+  if (!this.nodeClassesMap[nodeType]) {
+    console.log("Node with '" + nodeType + "' not found.");
+    return;
+  }
+
+  this.nodeType = nodeType;
 };
 
 Scene.prototype.setLinkType = function (linkType) {
+  if (this.mode !== Constant.Mode_Link) {
+    console.log("Mode is not Mode_Node");
+    return;
+  }
 
+  if (!this.linkClassesMap[linkType]) {
+    console.log("Link with '" + linkType + "' not found.");
+    return;
+  }
+
+  this.linkType = linkType;
 };
 
-Scene.prototype.camera = function (x, y, z) {
+//@private method
+Scene.prototype.createNode = function (position) {
+  //position is value of click mouse position.
+  var constScenePosition = this.renderedSceneObj.state.position,
+      constSceneScale = this.renderedSceneObj.state.scale,
+      NodeClass = this.nodeClassesMap[this.nodeType],
+      node = new NodeClass();
 
+  /*
+    example:
+    click on (100, 100)
+    page position is (-10, -10)
+   */
+  node.position.add(position);
+  node.position.sub(constScenePosition);
+  node.position.div(constSceneScale);
+  node.size.div(2);
+  node.position.sub(node.size);
+  node.size.div(0.5);
+
+  this.sceneWillCreateNode(node, function () {
+
+    //we need to add it to internal state of renderedSceneObject
+    this.renderedSceneObj.addNode(node);
+
+    //call render scene once we adding the object into
+    this.renderedSceneObj.update();
+
+    //call method that node has been added to scene
+    this.sceneDidCreateNode(node);
+
+  }.bind(this), function (err) {
+    this.sceneFailedCreateNode(err, node);
+  }.bind(this));
+};
+
+Scene.prototype.connectNodes = function (sourceNode, targetNode) {
+  var LinkClass = this.linkClassesMap[this.linkType],
+      link = new LinkClass();
+
+  link.source = sourceNode.id;
+  link.target = targetNode.id;
+
+  this.sceneWillConnectNodes(sourceNode,
+                             targetNode,
+                             link,
+                             function () {
+                               this.renderedSceneObj.addLink(link);
+                               this.sceneDidConnectNodes(sourceNode,
+                                                         targetNode,
+                                                         link);
+                             }.bind(this), function (err) {
+                               this.sceneFailedConnectNodes(err,
+                                                            sourceNode,
+                                                            targetNode,
+                                                            link);
+                             }.bind(this));
 };
 
 /*
@@ -68,18 +158,21 @@ Scene.prototype.camera = function (x, y, z) {
 
   data consits of 3 major fields
   1: meta <Object>
-    { position: [], scale: 0 }
+    {
+      position: [0, 0],
+      scale: 0
+    },
 
   2: nodes <Array>
     [
       {
-        id: "node:1",
         type: "RabbitMQ",
 
         attributes: {
+          id:       "node:1",
           position: [0, 0],
-          size: [0, 0],
-          label: "LABEL"
+          size:     [0, 0],
+          label:    "LABEL"
         }
       },
       ...
@@ -87,10 +180,10 @@ Scene.prototype.camera = function (x, y, z) {
   3: links <Array>
     [
       {
-        id: "link:10",
         type: "TCP",
 
         attributes: {
+          id:     "link:10",
           source: "node:1",
           target: "node:5"
         }
@@ -110,17 +203,29 @@ Scene.prototype.export = function () {
 //##############################################################################
 //# optional override mthods
 //##############################################################################
-
+Scene.prototype.sceneReady = function () { };
 Scene.prototype.sceneWillCreateNode = function (node, proceed, stop) {
   proceed();
 };
 
-Scene.prototype.sceneDidCreateNode = function (node) {};
-
-Scene.prototype.sceneWillConnectNodes = function (nodeA, nodeB, link, proceed, stop) {
+Scene.prototype.sceneWillConnectNodes = function (sourceNode,
+                                                  targetNode,
+                                                  link,
+                                                  proceed,
+                                                  stop) {
   proceed();
 };
 
-Scene.prototype.sceneDidConnectNodes = function (nodeA, nodeB, link) {};
+Scene.prototype.sceneDidCreateNode = function (node) { };
+Scene.prototype.sceneFailedCreateNode = function (err, node) { };
+Scene.prototype.sceneDidConnectNodes = function (sourceNode,
+                                                 targetNode,
+                                                 link) { };
+Scene.prototype.sceneFailedConnectNodes = function (err,
+                                                    sourceNode,
+                                                    targetNode,
+                                                    link) { };
+Scene.prototype.sceneDidRequestNodeInfo = function (node) { };
+Scene.prototype.sceneDidRequestLinkInfo = function (link) { };
 
 module.exports = Scene;
