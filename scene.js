@@ -9,22 +9,22 @@ Ali.attach(Ali.createScene({
   },
   sceneReady: function () {
     console.log("Scene is Ready");
-    this.setMode(Ali.Constant.Mode_Node);
-    this.setNodeType("RabbitMQ");
 
-
-    setTimeout(function () {
-      this.setMode(Ali.Constant.Mode_Link);
-      this.setLinkType("TCP");
-
-      console.log("LINK MODE");
-    }.bind(this), 4000);
-
-    setTimeout(function () {
-      this.setMode(Ali.Constant.Mode_Default);
-
-      console.log("DEFAULT MODE");
-    }.bind(this), 8000);
+    document.body.addEventListener("keydown", function(evt) {
+      switch(evt.keyCode) {
+        case 78:
+          this.setMode(Ali.Constant.Mode_Node);
+          this.setNodeType("RabbitMQ");
+          break;
+        case 27:
+          this.setMode(Ali.Constant.Mode_Default);
+          break;
+        case 76:
+          this.setMode(Ali.Constant.Mode_Link);
+          this.setLinkType("TCP");
+          break;
+      }
+    }.bind(this), false);
   },
   sceneWillCreateNode: function (node, proceed, stop) {
     proceed();
